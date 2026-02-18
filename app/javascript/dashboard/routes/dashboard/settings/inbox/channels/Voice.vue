@@ -31,66 +31,47 @@ const state = reactive({
 
 const uiFlags = useMapGetter('inboxes/getUIFlags');
 
-const validationRules = computed(() => {
-  const rules = {
+const rules = computed(() => {
+  if (state.provider === 'sip') {
+    return {
+      phoneNumber: { required, isPhoneE164 },
+      sipServer: { required },
+      sipUsername: { required },
+      sipPassword: { required },
+      sipGatewayUrl: { required },
+    };
+  }
+
+  // Default Twilio
+  return {
     phoneNumber: { required, isPhoneE164 },
+    accountSid: { required },
+    authToken: { required },
+    apiKeySid: { required },
+    apiKeySecret: { required },
   };
-
-  if (state.provider === 'twilio') {
-    rules.accountSid = { required };
-    rules.authToken = { required };
-    rules.apiKeySid = { required };
-    rules.apiKeySecret = { required };
-  } else if (state.provider === 'sip') {
-    rules.sipServer = { required };
-    rules.sipUsername = { required };
-    rules.sipPassword = { required };
-    rules.sipGatewayUrl = { required };
-  }
-
-  return rules;
 });
 
-const v$ = useVuelidate(validationRules, state);
-const isSubmitDisabled = computed(() => v$.value.$invalid);
+const v$ = useVuelidate(rules, state);
 
-const formErrors = computed(() => {
-  const errors = {
-    phoneNumber: v$.value.phoneNumber?.$error
-      ? t('INBOX_MGMT.ADD.VOICE.PHONE_NUMBER.ERROR')
-      : '',
-  };
+const getError = (field) => {
+  if (v$.value[field] && v$.value[field].$error) {
+    if (field === 'phoneNumber') return t('INBOX_MGMT.ADD.VOICE.PHONE_NUMBER.ERROR');
 
-  if (state.provider === 'twilio') {
-    errors.accountSid = v$.value.accountSid?.$error
-      ? t('INBOX_MGMT.ADD.VOICE.TWILIO.ACCOUNT_SID.REQUIRED')
-      : '';
-    errors.authToken = v$.value.authToken?.$error
-      ? t('INBOX_MGMT.ADD.VOICE.TWILIO.AUTH_TOKEN.REQUIRED')
-      : '';
-    errors.apiKeySid = v$.value.apiKeySid?.$error
-      ? t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SID.REQUIRED')
-      : '';
-    errors.apiKeySecret = v$.value.apiKeySecret?.$error
-      ? t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SECRET.REQUIRED')
-      : '';
-  } else if (state.provider === 'sip') {
-    errors.sipServer = v$.value.sipServer?.$error
-      ? t('INBOX_MGMT.ADD.VOICE.SIP.SERVER.REQUIRED')
-      : '';
-    errors.sipUsername = v$.value.sipUsername?.$error
-      ? t('INBOX_MGMT.ADD.VOICE.SIP.USERNAME.REQUIRED')
-      : '';
-    errors.sipPassword = v$.value.sipPassword?.$error
-      ? t('INBOX_MGMT.ADD.VOICE.SIP.PASSWORD.REQUIRED')
-      : '';
-    errors.sipGatewayUrl = v$.value.sipGatewayUrl?.$error
-      ? t('INBOX_MGMT.ADD.VOICE.SIP.GATEWAY_URL.REQUIRED')
-      : '';
+    if (state.provider === 'sip') {
+      if (field === 'sipServer') return t('INBOX_MGMT.ADD.VOICE.SIP.SERVER.REQUIRED');
+      if (field === 'sipUsername') return t('INBOX_MGMT.ADD.VOICE.SIP.USERNAME.REQUIRED');
+      if (field === 'sipPassword') return t('INBOX_MGMT.ADD.VOICE.SIP.PASSWORD.REQUIRED');
+      if (field === 'sipGatewayUrl') return t('INBOX_MGMT.ADD.VOICE.SIP.GATEWAY_URL.REQUIRED');
+    } else {
+      if (field === 'accountSid') return t('INBOX_MGMT.ADD.VOICE.TWILIO.ACCOUNT_SID.REQUIRED');
+      if (field === 'authToken') return t('INBOX_MGMT.ADD.VOICE.TWILIO.AUTH_TOKEN.REQUIRED');
+      if (field === 'apiKeySid') return t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SID.REQUIRED');
+      if (field === 'apiKeySecret') return t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SECRET.REQUIRED');
+    }
   }
-
-  return errors;
-});
+  return '';
+};
 
 function getProviderConfig() {
   if (state.provider === 'sip') {
@@ -165,8 +146,8 @@ async function createChannel() {
         v-model="state.phoneNumber"
         :label="t('INBOX_MGMT.ADD.VOICE.PHONE_NUMBER.LABEL')"
         :placeholder="t('INBOX_MGMT.ADD.VOICE.PHONE_NUMBER.PLACEHOLDER')"
-        :message="formErrors.phoneNumber"
-        :message-type="formErrors.phoneNumber ? 'error' : 'info'"
+        :message="getError('phoneNumber')"
+        :message-type="getError('phoneNumber') ? 'error' : 'info'"
         @blur="v$.phoneNumber?.$touch"
       />
 
@@ -176,8 +157,8 @@ async function createChannel() {
           v-model="state.accountSid"
           :label="t('INBOX_MGMT.ADD.VOICE.TWILIO.ACCOUNT_SID.LABEL')"
           :placeholder="t('INBOX_MGMT.ADD.VOICE.TWILIO.ACCOUNT_SID.PLACEHOLDER')"
-          :message="formErrors.accountSid"
-          :message-type="formErrors.accountSid ? 'error' : 'info'"
+          :message="getError('accountSid')"
+          :message-type="getError('accountSid') ? 'error' : 'info'"
           @blur="v$.accountSid?.$touch"
         />
 
@@ -186,8 +167,8 @@ async function createChannel() {
           type="password"
           :label="t('INBOX_MGMT.ADD.VOICE.TWILIO.AUTH_TOKEN.LABEL')"
           :placeholder="t('INBOX_MGMT.ADD.VOICE.TWILIO.AUTH_TOKEN.PLACEHOLDER')"
-          :message="formErrors.authToken"
-          :message-type="formErrors.authToken ? 'error' : 'info'"
+          :message="getError('authToken')"
+          :message-type="getError('authToken') ? 'error' : 'info'"
           @blur="v$.authToken?.$touch"
         />
 
@@ -195,8 +176,8 @@ async function createChannel() {
           v-model="state.apiKeySid"
           :label="t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SID.LABEL')"
           :placeholder="t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SID.PLACEHOLDER')"
-          :message="formErrors.apiKeySid"
-          :message-type="formErrors.apiKeySid ? 'error' : 'info'"
+          :message="getError('apiKeySid')"
+          :message-type="getError('apiKeySid') ? 'error' : 'info'"
           @blur="v$.apiKeySid?.$touch"
         />
 
@@ -205,8 +186,8 @@ async function createChannel() {
           type="password"
           :label="t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SECRET.LABEL')"
           :placeholder="t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SECRET.PLACEHOLDER')"
-          :message="formErrors.apiKeySecret"
-          :message-type="formErrors.apiKeySecret ? 'error' : 'info'"
+          :message="getError('apiKeySecret')"
+          :message-type="getError('apiKeySecret') ? 'error' : 'info'"
           @blur="v$.apiKeySecret?.$touch"
         />
       </template>
@@ -217,8 +198,8 @@ async function createChannel() {
           v-model="state.sipServer"
           :label="t('INBOX_MGMT.ADD.VOICE.SIP.SERVER.LABEL')"
           :placeholder="t('INBOX_MGMT.ADD.VOICE.SIP.SERVER.PLACEHOLDER')"
-          :message="formErrors.sipServer"
-          :message-type="formErrors.sipServer ? 'error' : 'info'"
+          :message="getError('sipServer')"
+          :message-type="getError('sipServer') ? 'error' : 'info'"
           @blur="v$.sipServer?.$touch"
         />
 
@@ -226,8 +207,8 @@ async function createChannel() {
           v-model="state.sipUsername"
           :label="t('INBOX_MGMT.ADD.VOICE.SIP.USERNAME.LABEL')"
           :placeholder="t('INBOX_MGMT.ADD.VOICE.SIP.USERNAME.PLACEHOLDER')"
-          :message="formErrors.sipUsername"
-          :message-type="formErrors.sipUsername ? 'error' : 'info'"
+          :message="getError('sipUsername')"
+          :message-type="getError('sipUsername') ? 'error' : 'info'"
           @blur="v$.sipUsername?.$touch"
         />
 
@@ -236,8 +217,8 @@ async function createChannel() {
           type="password"
           :label="t('INBOX_MGMT.ADD.VOICE.SIP.PASSWORD.LABEL')"
           :placeholder="t('INBOX_MGMT.ADD.VOICE.SIP.PASSWORD.PLACEHOLDER')"
-          :message="formErrors.sipPassword"
-          :message-type="formErrors.sipPassword ? 'error' : 'info'"
+          :message="getError('sipPassword')"
+          :message-type="getError('sipPassword') ? 'error' : 'info'"
           @blur="v$.sipPassword?.$touch"
         />
 
@@ -245,8 +226,8 @@ async function createChannel() {
           v-model="state.sipGatewayUrl"
           :label="t('INBOX_MGMT.ADD.VOICE.SIP.GATEWAY_URL.LABEL')"
           :placeholder="t('INBOX_MGMT.ADD.VOICE.SIP.GATEWAY_URL.PLACEHOLDER')"
-          :message="formErrors.sipGatewayUrl"
-          :message-type="formErrors.sipGatewayUrl ? 'error' : 'info'"
+          :message="getError('sipGatewayUrl')"
+          :message-type="getError('sipGatewayUrl') ? 'error' : 'info'"
           @blur="v$.sipGatewayUrl?.$touch"
         />
       </template>
@@ -254,7 +235,7 @@ async function createChannel() {
       <div>
         <NextButton
           :is-loading="uiFlags.isCreating"
-          :disabled="isSubmitDisabled"
+          :disabled="v$.$invalid"
           :label="t('INBOX_MGMT.ADD.VOICE.SUBMIT_BUTTON')"
           type="submit"
         />

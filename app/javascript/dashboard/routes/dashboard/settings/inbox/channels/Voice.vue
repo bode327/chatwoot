@@ -3,7 +3,7 @@ import { reactive, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useVuelidate } from '@vuelidate/core';
-import { required } from '@vuelidate/validators';
+import { required, requiredIf } from '@vuelidate/validators';
 import { useAlert } from 'dashboard/composables';
 import { isPhoneE164 } from 'shared/helpers/Validators';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
@@ -31,26 +31,20 @@ const state = reactive({
 
 const uiFlags = useMapGetter('inboxes/getUIFlags');
 
-const rules = computed(() => {
-  if (state.provider === 'sip') {
-    return {
-      phoneNumber: { required, isPhoneE164 },
-      sipServer: { required },
-      sipUsername: { required },
-      sipPassword: { required },
-      sipGatewayUrl: { required },
-    };
-  }
-
-  // Default Twilio
-  return {
-    phoneNumber: { required, isPhoneE164 },
-    accountSid: { required },
-    authToken: { required },
-    apiKeySid: { required },
-    apiKeySecret: { required },
-  };
-});
+// Define static rules structure with conditional validation using requiredIf
+const rules = {
+  phoneNumber: { required, isPhoneE164 },
+  // Twilio Fields
+  accountSid: { required: requiredIf(() => state.provider === 'twilio') },
+  authToken: { required: requiredIf(() => state.provider === 'twilio') },
+  apiKeySid: { required: requiredIf(() => state.provider === 'twilio') },
+  apiKeySecret: { required: requiredIf(() => state.provider === 'twilio') },
+  // SIP Fields
+  sipServer: { required: requiredIf(() => state.provider === 'sip') },
+  sipUsername: { required: requiredIf(() => state.provider === 'sip') },
+  sipPassword: { required: requiredIf(() => state.provider === 'sip') },
+  sipGatewayUrl: { required: requiredIf(() => state.provider === 'sip') },
+};
 
 const v$ = useVuelidate(rules, state);
 
@@ -58,17 +52,17 @@ const getError = (field) => {
   if (v$.value[field] && v$.value[field].$error) {
     if (field === 'phoneNumber') return t('INBOX_MGMT.ADD.VOICE.PHONE_NUMBER.ERROR');
 
-    if (state.provider === 'sip') {
-      if (field === 'sipServer') return t('INBOX_MGMT.ADD.VOICE.SIP.SERVER.REQUIRED');
-      if (field === 'sipUsername') return t('INBOX_MGMT.ADD.VOICE.SIP.USERNAME.REQUIRED');
-      if (field === 'sipPassword') return t('INBOX_MGMT.ADD.VOICE.SIP.PASSWORD.REQUIRED');
-      if (field === 'sipGatewayUrl') return t('INBOX_MGMT.ADD.VOICE.SIP.GATEWAY_URL.REQUIRED');
-    } else {
-      if (field === 'accountSid') return t('INBOX_MGMT.ADD.VOICE.TWILIO.ACCOUNT_SID.REQUIRED');
-      if (field === 'authToken') return t('INBOX_MGMT.ADD.VOICE.TWILIO.AUTH_TOKEN.REQUIRED');
-      if (field === 'apiKeySid') return t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SID.REQUIRED');
-      if (field === 'apiKeySecret') return t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SECRET.REQUIRED');
-    }
+    // SIP Errors
+    if (field === 'sipServer') return t('INBOX_MGMT.ADD.VOICE.SIP.SERVER.REQUIRED');
+    if (field === 'sipUsername') return t('INBOX_MGMT.ADD.VOICE.SIP.USERNAME.REQUIRED');
+    if (field === 'sipPassword') return t('INBOX_MGMT.ADD.VOICE.SIP.PASSWORD.REQUIRED');
+    if (field === 'sipGatewayUrl') return t('INBOX_MGMT.ADD.VOICE.SIP.GATEWAY_URL.REQUIRED');
+
+    // Twilio Errors
+    if (field === 'accountSid') return t('INBOX_MGMT.ADD.VOICE.TWILIO.ACCOUNT_SID.REQUIRED');
+    if (field === 'authToken') return t('INBOX_MGMT.ADD.VOICE.TWILIO.AUTH_TOKEN.REQUIRED');
+    if (field === 'apiKeySid') return t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SID.REQUIRED');
+    if (field === 'apiKeySecret') return t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SECRET.REQUIRED');
   }
   return '';
 };

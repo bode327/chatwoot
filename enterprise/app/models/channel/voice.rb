@@ -31,6 +31,7 @@ class Channel::Voice < ApplicationRecord
   # Provider-specific configs stored in JSON
   validate :validate_provider_config
   before_validation :provision_twilio_on_create, on: :create, if: :twilio?
+  before_validation :generate_sip_token, if: :sip?
 
   EDITABLE_ATTRS = [:phone_number, :provider, { provider_config: {} }].freeze
 
@@ -46,6 +47,12 @@ class Channel::Voice < ApplicationRecord
     case provider
     when 'twilio'
       Voice::Provider::Twilio::Adapter.new(self).initiate_call(
+        to: to,
+        conference_sid: conference_sid,
+        agent_id: agent_id
+      )
+    when 'sip'
+      Voice::Provider::Sip::Adapter.new(self).initiate_call(
         to: to,
         conference_sid: conference_sid,
         agent_id: agent_id
@@ -72,12 +79,18 @@ class Channel::Voice < ApplicationRecord
     provider == 'twilio'
   end
 
+  def sip?
+    provider == 'sip'
+  end
+
   def validate_provider_config
     return if provider_config.blank?
 
     case provider
     when 'twilio'
       validate_twilio_config
+    when 'sip'
+      validate_sip_config
     end
   end
 
@@ -87,6 +100,14 @@ class Channel::Voice < ApplicationRecord
     required_keys = %w[account_sid auth_token api_key_sid api_key_secret twiml_app_sid]
     required_keys.each do |key|
       errors.add(:provider_config, "#{key} is required for Twilio provider") if config[key].blank?
+    end
+  end
+
+  def validate_sip_config
+    config = provider_config.with_indifferent_access
+    required_keys = %w[server username password gateway_url webhook_token]
+    required_keys.each do |key|
+      errors.add(:provider_config, "#{key} is required for SIP provider") if config[key].blank?
     end
   end
 
@@ -116,6 +137,16 @@ class Channel::Voice < ApplicationRecord
     }
     Rails.logger.error("TWILIO_VOICE_SETUP_ON_CREATE_ERROR: #{error_details}")
     errors.add(:base, "Twilio setup failed: #{e.message}")
+  end
+
+  def generate_sip_token
+    return unless provider_config.is_a?(Hash)
+
+    cfg = provider_config.with_indifferent_access
+    if cfg[:webhook_token].blank?
+      cfg[:webhook_token] = SecureRandom.hex(32)
+      self.provider_config = cfg
+    end
   end
 
   public :provider_config_hash

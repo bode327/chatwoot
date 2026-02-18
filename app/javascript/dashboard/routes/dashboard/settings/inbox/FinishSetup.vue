@@ -38,6 +38,8 @@ const {
   isATwilioWhatsAppChannel,
 } = useInbox(route.params.inbox_id);
 
+import SipConfiguration from './channels/SipConfiguration.vue';
+
 const hasDuplicateInstagramInbox = computed(() => {
   const instagramId = currentInbox.value.instagram_id;
   const facebookInbox =
@@ -182,6 +184,9 @@ onMounted(() => {
             v-if="currentInbox.web_widget_script"
             :script="currentInbox.web_widget_script"
           />
+        </div>
+        <div class="w-[75%] max-w-[75%] ml-[12.5%] text-left" v-if="currentInbox.webhook_token">
+           <SipConfiguration :inbox="currentInbox" />
         </div>
         <div class="w-[50%] max-w-[50%] ml-[25%]">
           <woot-code

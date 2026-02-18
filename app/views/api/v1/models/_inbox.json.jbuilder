@@ -134,4 +134,7 @@ end
 if resource.channel_type == 'Channel::Voice'
   json.voice_call_webhook_url resource.channel.try(:voice_call_webhook_url)
   json.voice_status_webhook_url resource.channel.try(:voice_status_webhook_url)
+  if resource.channel.try(:sip?)
+    json.webhook_token resource.channel.try(:provider_config).try(:[], 'webhook_token')
+  end
 end

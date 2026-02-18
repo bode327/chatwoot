@@ -314,7 +314,10 @@
       },
       "VOICE": {
         "TITLE": "Voice Channel",
-        "DESC": "Integrate Twilio Voice and start supporting your customers via phone calls.",
+        "DESC": "Integrate Voice and start supporting your customers via phone calls.",
+        "PROVIDER": {
+          "LABEL": "Voice Provider"
+        },
         "PHONE_NUMBER": {
           "LABEL": "Phone Number",
           "PLACEHOLDER": "Enter your phone number (e.g. +1234567890)",
@@ -340,6 +343,34 @@
             "LABEL": "API Key Secret",
             "PLACEHOLDER": "Enter your Twilio API Key Secret",
             "REQUIRED": "API Key Secret is required"
+          }
+        },
+        "SIP": {
+          "SERVER": {
+            "LABEL": "SIP Server",
+            "PLACEHOLDER": "Enter SIP Server Address (e.g. sip.example.com)",
+            "REQUIRED": "SIP Server is required"
+          },
+          "USERNAME": {
+            "LABEL": "SIP Username",
+            "PLACEHOLDER": "Enter SIP Username",
+            "REQUIRED": "SIP Username is required"
+          },
+          "PASSWORD": {
+            "LABEL": "SIP Password",
+            "PLACEHOLDER": "Enter SIP Password",
+            "REQUIRED": "SIP Password is required"
+          },
+          "GATEWAY_URL": {
+            "LABEL": "Gateway URL",
+            "PLACEHOLDER": "Enter HTTP Gateway URL for Outbound Calls",
+            "REQUIRED": "Gateway URL is required"
+          },
+          "CONFIGURATION": {
+            "TITLE": "SIP Configuration",
+            "DESC": "Configure your SIP Gateway to forward calls to the following Webhook URL using the provided Token.",
+            "WEBHOOK_URL_LABEL": "Webhook URL",
+            "TOKEN_LABEL": "Webhook Token"
           }
         },
         "CONFIGURATION": {

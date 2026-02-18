@@ -588,6 +588,13 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :sip do
+    if ChatwootApp.enterprise?
+      post 'voice/incoming_call', to: 'voice#incoming_call'
+      post 'voice/status', to: 'voice#status_callback'
+    end
+  end
+
   get 'microsoft/callback', to: 'microsoft/callbacks#show'
   get 'google/callback', to: 'google/callbacks#show'
   get 'instagram/callback', to: 'instagram/callbacks#show'

@@ -314,7 +314,10 @@
       },
       "VOICE": {
         "TITLE": "Canal de Voz",
-        "DESC": "Integre o Twilio Voice e comece a oferecer suporte a seus clientes através de chamadas telefônicas.",
+        "DESC": "Integre o Canal de Voz e comece a oferecer suporte a seus clientes através de chamadas telefônicas.",
+        "PROVIDER": {
+          "LABEL": "Provedor de Voz"
+        },
         "PHONE_NUMBER": {
           "LABEL": "Número de Telefone",
           "PLACEHOLDER": "Digite seu número de telefone (por exemplo, +551234567890)",
@@ -340,6 +343,34 @@
             "LABEL": "Segredo da Chave API",
             "PLACEHOLDER": "Digite o segredo da sua chave de API do Twilio",
             "REQUIRED": "Segredo da chave da API é obrigatório"
+          }
+        },
+        "SIP": {
+          "SERVER": {
+            "LABEL": "Servidor SIP",
+            "PLACEHOLDER": "Insira o endereço do Servidor SIP (ex: sip.exemplo.com)",
+            "REQUIRED": "Servidor SIP é obrigatório"
+          },
+          "USERNAME": {
+            "LABEL": "Usuário SIP",
+            "PLACEHOLDER": "Insira o Usuário SIP",
+            "REQUIRED": "Usuário SIP é obrigatório"
+          },
+          "PASSWORD": {
+            "LABEL": "Senha SIP",
+            "PLACEHOLDER": "Insira a Senha SIP",
+            "REQUIRED": "Senha SIP é obrigatória"
+          },
+          "GATEWAY_URL": {
+            "LABEL": "URL do Gateway",
+            "PLACEHOLDER": "Insira a URL do Gateway HTTP para chamadas sainte",
+            "REQUIRED": "URL do Gateway é obrigatória"
+          },
+          "CONFIGURATION": {
+            "TITLE": "Configuração SIP",
+            "DESC": "Configure seu Gateway SIP para encaminhar chamadas para a seguinte URL de Webhook usando o Token fornecido.",
+            "WEBHOOK_URL_LABEL": "URL do Webhook",
+            "TOKEN_LABEL": "Token do Webhook"
           }
         },
         "CONFIGURATION": {

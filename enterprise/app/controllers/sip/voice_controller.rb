@@ -1,6 +1,5 @@
 module Sip
-  class VoiceController < ApplicationController
-    skip_before_action :verify_authenticity_token, raise: false
+  class VoiceController < ActionController::API
     before_action :set_inbox
 
     # Handle incoming call webhook from SIP Gateway

@@ -1,7 +1,9 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import CopyButton from 'dashboard/components-next/button/CopyButton.vue';
+import NextButton from 'dashboard/components-next/button/Button.vue';
+import { copyTextToClipboard } from 'shared/helpers/clipboard';
+import { useAlert } from 'dashboard/composables';
 
 const props = defineProps({
   inbox: {
@@ -22,6 +24,11 @@ const webhookUrl = computed(() => {
 const webhookToken = computed(() => {
   return props.inbox.webhook_token || '';
 });
+
+const copy = async (text) => {
+  await copyTextToClipboard(text);
+  useAlert(t('COMPONENTS.CODE.COPY_SUCCESSFUL'));
+};
 </script>
 
 <template>
@@ -46,7 +53,13 @@ const webhookToken = computed(() => {
             readonly
             class="flex-1 px-3 py-2 text-sm bg-white border rounded-md dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
           />
-          <CopyButton :content="webhookUrl" />
+          <NextButton
+            icon="i-lucide-copy"
+            size="sm"
+            variant="ghost"
+            color="slate"
+            @click="copy(webhookUrl)"
+          />
         </div>
       </div>
 
@@ -60,7 +73,13 @@ const webhookToken = computed(() => {
             readonly
             class="flex-1 px-3 py-2 text-sm bg-white border rounded-md dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
           />
-          <CopyButton :content="webhookToken" />
+          <NextButton
+            icon="i-lucide-copy"
+            size="sm"
+            variant="ghost"
+            color="slate"
+            @click="copy(webhookToken)"
+          />
         </div>
       </div>
     </div>

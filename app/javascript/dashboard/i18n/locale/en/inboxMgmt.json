@@ -328,6 +328,10 @@
           "TITLE": "Select your Voice provider",
           "DESCRIPTION": "Choose your Voice provider. You can connect through Twilio or a generic SIP provider."
         },
+        "API_CALLBACK": {
+          "TITLE": "Callback URL",
+          "SUBTITLE": "Configure this URL in your SIP provider settings to receive status updates."
+        },
         "PHONE_NUMBER": {
           "LABEL": "Phone Number",
           "PLACEHOLDER": "Enter your phone number (e.g. +1234567890)",

@@ -61,7 +61,7 @@ const headerContent = computed(() => {
 </script>
 
 <template>
-  <div class="w-full h-full p-6 col-span-6 overflow-auto">
+  <div class="w-full h-full p-6 pb-20 col-span-6 overflow-y-auto">
     <div v-if="showProviderSelection">
       <div class="mb-10 text-left">
         <h1 class="mb-2 text-lg font-medium text-n-slate-12">

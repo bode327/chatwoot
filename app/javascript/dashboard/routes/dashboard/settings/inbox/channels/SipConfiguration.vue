@@ -49,6 +49,12 @@ const formErrors = computed(() => ({
     : '',
 }));
 
+const callbackURL = computed(() => {
+  if (!state.phoneNumber) return '';
+  const digits = state.phoneNumber.replace(/\D/g, '');
+  return `${window.location.origin}/webhooks/sip/${digits}`;
+});
+
 function getProviderConfig() {
   const config = {
     server: state.server,
@@ -126,6 +132,20 @@ async function createChannel() {
       :message-type="formErrors.password ? 'error' : 'info'"
       @blur="v$.password?.$touch"
     />
+
+    <div v-if="state.phoneNumber" class="flex flex-col gap-1 mb-4">
+      <label class="text-xs font-semibold text-n-slate-12">
+        {{ t('INBOX_MGMT.ADD.VOICE.API_CALLBACK.TITLE') }}
+      </label>
+      <p class="mb-1 text-xs text-n-slate-11">
+        {{ t('INBOX_MGMT.ADD.VOICE.API_CALLBACK.SUBTITLE') }}
+      </p>
+      <div
+        class="flex items-center justify-between px-3 py-2 text-sm border rounded-md bg-n-alpha-1 border-n-weak text-n-slate-12"
+      >
+        <span class="truncate">{{ callbackURL }}</span>
+      </div>
+    </div>
 
     <div>
       <NextButton

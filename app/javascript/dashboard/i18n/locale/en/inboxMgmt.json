@@ -315,6 +315,16 @@
       "VOICE": {
         "TITLE": "Voice Channel",
         "DESC": "Integrate Voice and start supporting your customers via phone calls.",
+        "SELECT_PROVIDER": {
+          "TITLE": "Select your API provider",
+          "DESCRIPTION": "Choose your Voice provider. You can connect through Twilio or use a generic SIP trunk."
+        },
+        "PROVIDERS": {
+          "TWILIO": "Twilio",
+          "TWILIO_DESC": "Connect via Twilio credentials",
+          "SIP": "SIP Trunk",
+          "SIP_DESC": "Connect via generic SIP"
+        },
         "PROVIDER": {
           "LABEL": "Voice Provider"
         },

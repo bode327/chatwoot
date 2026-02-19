@@ -315,6 +315,16 @@
       "VOICE": {
         "TITLE": "Canal de Voz",
         "DESC": "Integre o Canal de Voz e comece a oferecer suporte a seus clientes através de chamadas telefônicas.",
+        "SELECT_PROVIDER": {
+          "TITLE": "Selecione seu provedor de API",
+          "DESCRIPTION": "Escolha seu provedor de Voz. Você pode se conectar através do Twilio ou usar um tronco SIP genérico."
+        },
+        "PROVIDERS": {
+          "TWILIO": "Twilio",
+          "TWILIO_DESC": "Conectar através de credenciais Twilio",
+          "SIP": "Tronco SIP",
+          "SIP_DESC": "Conectar via SIP genérico"
+        },
         "PROVIDER": {
           "LABEL": "Provedor de Voz"
         },

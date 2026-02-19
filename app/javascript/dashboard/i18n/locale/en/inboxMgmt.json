@@ -318,6 +318,16 @@
       "VOICE": {
         "TITLE": "Voice Channel",
         "DESC": "Integrate Twilio Voice and start supporting your customers via phone calls.",
+        "PROVIDERS": {
+          "TWILIO": "Twilio",
+          "TWILIO_DESC": "Connect via Twilio credentials",
+          "SIP": "SIP",
+          "SIP_DESC": "Connect via Generic SIP credentials"
+        },
+        "SELECT_PROVIDER": {
+          "TITLE": "Select your Voice provider",
+          "DESCRIPTION": "Choose your Voice provider. You can connect through Twilio or a generic SIP provider."
+        },
         "PHONE_NUMBER": {
           "LABEL": "Phone Number",
           "PLACEHOLDER": "Enter your phone number (e.g. +1234567890)",
@@ -343,6 +353,25 @@
             "LABEL": "API Key Secret",
             "PLACEHOLDER": "Enter your Twilio API Key Secret",
             "REQUIRED": "API Key Secret is required"
+          }
+        },
+        "SIP": {
+          "TITLE": "SIP Voice Channel",
+          "DESC": "Integrate SIP Voice and start supporting your customers via phone calls.",
+          "SERVER": {
+            "LABEL": "Server",
+            "PLACEHOLDER": "Enter your SIP Server URL",
+            "REQUIRED": "Server is required"
+          },
+          "USERNAME": {
+            "LABEL": "Username",
+            "PLACEHOLDER": "Enter your SIP Username",
+            "REQUIRED": "Username is required"
+          },
+          "PASSWORD": {
+            "LABEL": "Password",
+            "PLACEHOLDER": "Enter your SIP Password",
+            "REQUIRED": "Password is required"
           }
         },
         "CONFIGURATION": {

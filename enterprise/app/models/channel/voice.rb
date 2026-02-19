@@ -50,6 +50,12 @@ class Channel::Voice < ApplicationRecord
         conference_sid: conference_sid,
         agent_id: agent_id
       )
+    when 'sip'
+      Voice::Provider::Sip::Adapter.new(self).initiate_call(
+        to: to,
+        conference_sid: conference_sid,
+        agent_id: agent_id
+      )
     else
       raise "Unsupported voice provider: #{provider}"
     end
@@ -78,6 +84,8 @@ class Channel::Voice < ApplicationRecord
     case provider
     when 'twilio'
       validate_twilio_config
+    when 'sip'
+      validate_sip_config
     end
   end
 
@@ -87,6 +95,14 @@ class Channel::Voice < ApplicationRecord
     required_keys = %w[account_sid auth_token api_key_sid api_key_secret twiml_app_sid]
     required_keys.each do |key|
       errors.add(:provider_config, "#{key} is required for Twilio provider") if config[key].blank?
+    end
+  end
+
+  def validate_sip_config
+    config = provider_config.with_indifferent_access
+    required_keys = %w[server username password]
+    required_keys.each do |key|
+      errors.add(:provider_config, "#{key} is required for Sip provider") if config[key].blank?
     end
   end
 

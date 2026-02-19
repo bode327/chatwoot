@@ -2,7 +2,6 @@
 // components
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
-import { useBranding } from 'shared/composables/useBranding';
 
 // composables
 import { useCaptain } from 'dashboard/composables/useCaptain';
@@ -35,9 +34,8 @@ export default {
   },
   setup() {
     const { captainTasksEnabled } = useCaptain();
-    const { replaceInstallationName } = useBranding();
 
-    return { captainTasksEnabled, replaceInstallationName };
+    return { captainTasksEnabled };
   },
   data() {
     return {
@@ -230,9 +228,7 @@ export default {
       <div class="sender--info has-tooltip" data-original-title="null">
         <Avatar
           v-tooltip.top="{
-            content: replaceInstallationName(
-              $t('LABEL_MGMT.SUGGESTIONS.POWERED_BY')
-            ),
+            content: $t('LABEL_MGMT.SUGGESTIONS.POWERED_BY'),
             delay: { show: 600, hide: 0 },
             hideOnClick: true,
           }"

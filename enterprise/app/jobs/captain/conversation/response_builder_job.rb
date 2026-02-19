@@ -13,7 +13,9 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
     if captain_v2_enabled?
       generate_response_with_v2
     else
-      generate_and_process_response
+      ActiveRecord::Base.transaction do
+        generate_and_process_response
+      end
     end
   rescue StandardError => e
     raise e if e.is_a?(ActiveStorage::FileNotFoundError) || e.is_a?(Faraday::BadRequestError)
@@ -42,15 +44,11 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
   end
 
   def process_response
-    ActiveRecord::Base.transaction do
-      if handoff_requested?
-        process_action('handoff')
-      else
-        create_messages
-        Rails.logger.info("[CAPTAIN][ResponseBuilderJob] Incrementing response usage for #{account.id}")
-        account.increment_response_usage
-      end
-    end
+    return process_action('handoff') if handoff_requested?
+
+    create_messages
+    Rails.logger.info("[CAPTAIN][ResponseBuilderJob] Incrementing response usage for #{account.id}")
+    account.increment_response_usage
   end
 
   def collect_previous_messages

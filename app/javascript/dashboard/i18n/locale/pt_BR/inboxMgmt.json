@@ -372,8 +372,8 @@
             "REQUIRED": "Senha SIP é obrigatória"
           },
           "GATEWAY_URL": {
-            "LABEL": "URL do Gateway",
-            "PLACEHOLDER": "Insira a URL do Gateway HTTP para chamadas sainte",
+            "LABEL": "URL do Gateway HTTP (Para chamadas de saída)",
+            "PLACEHOLDER": "Insira a URL do Gateway HTTP para chamadas sainte (Obrigatório para iniciar chamadas)",
             "REQUIRED": "URL do Gateway é obrigatória"
           },
           "CONFIGURATION": {

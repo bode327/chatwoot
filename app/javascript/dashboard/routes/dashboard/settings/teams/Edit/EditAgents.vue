@@ -4,7 +4,7 @@ import router from '../../../../index';
 import { useAlert } from 'dashboard/composables';
 import { useVuelidate } from '@vuelidate/core';
 
-import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import Spinner from 'shared/components/Spinner.vue';
 import PageHeader from '../../SettingsSubPageHeader.vue';
 import AgentSelector from '../AgentSelector.vue';
 
@@ -131,9 +131,7 @@ export default {
             $t('TEAMS_SETTINGS.EDIT_FLOW.AGENTS.BUTTON_TEXT')
           "
         />
-        <div v-else class="flex items-center justify-center py-6">
-          <Spinner class="text-n-blue-11" />
-        </div>
+        <Spinner v-else />
       </div>
     </form>
   </div>

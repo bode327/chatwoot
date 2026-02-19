@@ -11,7 +11,6 @@ import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import TasksAPI from 'dashboard/api/captain/tasks';
-import { CAPTAIN_ERROR_TYPES } from 'dashboard/composables/captain/constants';
 
 export function useCaptain() {
   const store = useStore();
@@ -70,34 +69,13 @@ export function useCaptain() {
    * @param {Error} error - The error object from the API call.
    */
   const handleAPIError = error => {
-    if (
-      error.name === CAPTAIN_ERROR_TYPES.ABORT_ERROR ||
-      error.name === CAPTAIN_ERROR_TYPES.CANCELED_ERROR
-    ) {
+    if (error.name === 'AbortError' || error.name === 'CanceledError') {
       return;
     }
     const errorMessage =
       error.response?.data?.error ||
       t('INTEGRATION_SETTINGS.OPEN_AI.GENERATE_ERROR');
     useAlert(errorMessage);
-  };
-
-  /**
-   * Classifies API error types for downstream analytics.
-   * @param {Error} error
-   * @returns {string}
-   */
-  const getErrorType = error => {
-    if (
-      error.name === CAPTAIN_ERROR_TYPES.ABORT_ERROR ||
-      error.name === CAPTAIN_ERROR_TYPES.CANCELED_ERROR
-    ) {
-      return CAPTAIN_ERROR_TYPES.ABORTED;
-    }
-    if (error.response?.status) {
-      return `${CAPTAIN_ERROR_TYPES.HTTP_PREFIX}${error.response.status}`;
-    }
-    return CAPTAIN_ERROR_TYPES.API_ERROR;
   };
 
   // === Task Methods ===
@@ -125,7 +103,7 @@ export function useCaptain() {
       return { message: generatedMessage, followUpContext };
     } catch (error) {
       handleAPIError(error);
-      return { message: '', errorType: getErrorType(error) };
+      return { message: '' };
     }
   };
 
@@ -147,7 +125,7 @@ export function useCaptain() {
       return { message: generatedMessage, followUpContext };
     } catch (error) {
       handleAPIError(error);
-      return { message: '', errorType: getErrorType(error) };
+      return { message: '' };
     }
   };
 
@@ -169,7 +147,7 @@ export function useCaptain() {
       return { message: generatedMessage, followUpContext };
     } catch (error) {
       handleAPIError(error);
-      return { message: '', errorType: getErrorType(error) };
+      return { message: '' };
     }
   };
 
@@ -193,11 +171,7 @@ export function useCaptain() {
       return { message: generatedMessage, followUpContext: updatedContext };
     } catch (error) {
       handleAPIError(error);
-      return {
-        message: '',
-        followUpContext,
-        errorType: getErrorType(error),
-      };
+      return { message: '', followUpContext };
     }
   };
 

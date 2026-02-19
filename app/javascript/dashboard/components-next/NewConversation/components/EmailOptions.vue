@@ -95,7 +95,6 @@ const inputClass = computed(() => {
           :show-dropdown="showCcEmailsDropdown"
           :is-loading="isLoading"
           type="email"
-          allow-create
           class="flex-1 min-h-7"
           @focus="emit('updateDropdown', 'cc', true)"
           @input="emit('searchCcEmails', $event)"
@@ -128,7 +127,6 @@ const inputClass = computed(() => {
         :show-dropdown="showBccEmailsDropdown"
         :is-loading="isLoading"
         type="email"
-        allow-create
         class="flex-1 min-h-7"
         focus-on-mount
         @focus="emit('updateDropdown', 'bcc', true)"

@@ -201,7 +201,7 @@ defineExpose({
 
 <template>
   <InboxReconnectionRequired
-    class="mx-6"
+    class="mx-8 mt-5"
     :is-loading="isRequestingAuthorization"
     :action-label="actionLabel"
     :description="description"

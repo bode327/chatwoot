@@ -95,7 +95,6 @@ yarn-debug.log*
 .claude/settings.local.json
 .cursor
 .codex/
-.claude/
 CLAUDE.local.md
 
 # Histoire deployment

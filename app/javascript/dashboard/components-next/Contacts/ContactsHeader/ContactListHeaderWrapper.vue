@@ -68,7 +68,8 @@ const hasActiveSegments = computed(
 );
 const activeSegmentName = computed(() => props.activeSegment?.name);
 
-const openCreateNewContactDialog = () => {
+const openCreateNewContactDialog = async () => {
+  await createNewContactDialogRef.value?.contactsFormRef.resetValidation();
   createNewContactDialogRef.value?.dialogRef.open();
 };
 const openContactImportDialog = () =>

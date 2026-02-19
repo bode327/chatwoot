@@ -17,8 +17,7 @@ import HotKeyCard from './HotKeyCard.vue';
 import ChangePassword from './ChangePassword.vue';
 import NotificationPreferences from './NotificationPreferences.vue';
 import AudioNotifications from './AudioNotifications.vue';
-import SectionLayout from '../account/components/SectionLayout.vue';
-import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
+import FormSection from 'dashboard/components/FormSection.vue';
 import AccessToken from './AccessToken.vue';
 import MfaSettingsCard from './MfaSettingsCard.vue';
 import Policy from 'dashboard/components/policy.vue';
@@ -30,7 +29,7 @@ import {
 export default {
   components: {
     MessageSignature,
-    SectionLayout,
+    FormSection,
     FontSize,
     UserLanguageSelect,
     UserProfilePicture,
@@ -42,7 +41,6 @@ export default {
     AudioNotifications,
     AccessToken,
     MfaSettingsCard,
-    BaseSettingsHeader,
   },
   setup() {
     const { isEditorHotKeyEnabled, updateUISettings } = useUISettings();
@@ -205,27 +203,26 @@ export default {
 </script>
 
 <template>
-  <div class="grid max-w-2xl ltr:mr-auto rtl:ml-auto">
-    <BaseSettingsHeader :title="$t('PROFILE_SETTINGS.TITLE')" description="" />
-    <SectionLayout title="" description="" class="!pt-0">
-      <div class="flex flex-col gap-6">
-        <UserProfilePicture
-          :src="avatarUrl"
-          :name="name"
-          @change="updateProfilePicture"
-          @delete="deleteProfilePicture"
-        />
-        <UserBasicDetails
-          :name="name"
-          :display-name="displayName"
-          :email="email"
-          :email-enabled="!globalConfig.disableUserProfileUpdate"
-          @update-user="updateProfile"
-        />
-      </div>
-    </SectionLayout>
-    <SectionLayout
-      with-border
+  <div class="grid py-16 px-5 font-inter mx-auto gap-16 sm:max-w-screen-md">
+    <div class="flex flex-col gap-6">
+      <h2 class="text-2xl font-medium text-n-slate-12">
+        {{ $t('PROFILE_SETTINGS.TITLE') }}
+      </h2>
+      <UserProfilePicture
+        :src="avatarUrl"
+        :name="name"
+        @change="updateProfilePicture"
+        @delete="deleteProfilePicture"
+      />
+      <UserBasicDetails
+        :name="name"
+        :display-name="displayName"
+        :email="email"
+        :email-enabled="!globalConfig.disableUserProfileUpdate"
+        @update-user="updateProfile"
+      />
+    </div>
+    <FormSection
       :title="$t('PROFILE_SETTINGS.FORM.INTERFACE_SECTION.TITLE')"
       :description="
         replaceInstallationName(
@@ -233,25 +230,22 @@ export default {
         )
       "
     >
-      <div class="flex flex-col gap-6 items-start">
-        <FontSize
-          :value="currentFontSize"
-          :label="$t('PROFILE_SETTINGS.FORM.INTERFACE_SECTION.FONT_SIZE.TITLE')"
-          :description="
-            $t('PROFILE_SETTINGS.FORM.INTERFACE_SECTION.FONT_SIZE.NOTE')
-          "
-          @change="updateFontSize"
-        />
-        <UserLanguageSelect
-          :label="$t('PROFILE_SETTINGS.FORM.INTERFACE_SECTION.LANGUAGE.TITLE')"
-          :description="
-            $t('PROFILE_SETTINGS.FORM.INTERFACE_SECTION.LANGUAGE.NOTE')
-          "
-        />
-      </div>
-    </SectionLayout>
-    <SectionLayout
-      with-border
+      <FontSize
+        :value="currentFontSize"
+        :label="$t('PROFILE_SETTINGS.FORM.INTERFACE_SECTION.FONT_SIZE.TITLE')"
+        :description="
+          $t('PROFILE_SETTINGS.FORM.INTERFACE_SECTION.FONT_SIZE.NOTE')
+        "
+        @change="updateFontSize"
+      />
+      <UserLanguageSelect
+        :label="$t('PROFILE_SETTINGS.FORM.INTERFACE_SECTION.LANGUAGE.TITLE')"
+        :description="
+          $t('PROFILE_SETTINGS.FORM.INTERFACE_SECTION.LANGUAGE.NOTE')
+        "
+      />
+    </FormSection>
+    <FormSection
       :title="$t('PROFILE_SETTINGS.FORM.MESSAGE_SIGNATURE_SECTION.TITLE')"
       :description="$t('PROFILE_SETTINGS.FORM.MESSAGE_SIGNATURE_SECTION.NOTE')"
     >
@@ -259,9 +253,8 @@ export default {
         :message-signature="messageSignature"
         @update-signature="updateSignature"
       />
-    </SectionLayout>
-    <SectionLayout
-      with-border
+    </FormSection>
+    <FormSection
       :title="$t('PROFILE_SETTINGS.FORM.SEND_MESSAGE.TITLE')"
       :description="$t('PROFILE_SETTINGS.FORM.SEND_MESSAGE.NOTE')"
     >
@@ -289,45 +282,36 @@ export default {
           />
         </button>
       </div>
-    </SectionLayout>
-    <SectionLayout
+    </FormSection>
+    <FormSection
       v-if="!globalConfig.disableUserProfileUpdate"
-      with-border
       :title="$t('PROFILE_SETTINGS.FORM.PASSWORD_SECTION.TITLE')"
-      description=""
     >
       <ChangePassword />
-    </SectionLayout>
-    <SectionLayout
+    </FormSection>
+    <FormSection
       v-if="isMfaEnabled"
-      with-border
       :title="$t('PROFILE_SETTINGS.FORM.SECURITY_SECTION.TITLE')"
       :description="$t('PROFILE_SETTINGS.FORM.SECURITY_SECTION.NOTE')"
     >
       <MfaSettingsCard />
-    </SectionLayout>
+    </FormSection>
     <Policy :permissions="audioNotificationPermissions">
-      <SectionLayout
-        with-border
+      <FormSection
         :title="$t('PROFILE_SETTINGS.FORM.AUDIO_NOTIFICATIONS_SECTION.TITLE')"
         :description="
           $t('PROFILE_SETTINGS.FORM.AUDIO_NOTIFICATIONS_SECTION.NOTE')
         "
       >
         <AudioNotifications />
-      </SectionLayout>
+      </FormSection>
     </Policy>
     <Policy :permissions="notificationPermissions">
-      <SectionLayout
-        with-border
-        :title="$t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.TITLE')"
-        description=""
-      >
+      <FormSection :title="$t('PROFILE_SETTINGS.FORM.NOTIFICATIONS.TITLE')">
         <NotificationPreferences />
-      </SectionLayout>
+      </FormSection>
     </Policy>
-    <SectionLayout
-      with-border
+    <FormSection
       :title="$t('PROFILE_SETTINGS.FORM.ACCESS_TOKEN.TITLE')"
       :description="
         replaceInstallationName($t('PROFILE_SETTINGS.FORM.ACCESS_TOKEN.NOTE'))
@@ -338,6 +322,6 @@ export default {
         @on-copy="onCopyToken"
         @on-reset="resetAccessToken"
       />
-    </SectionLayout>
+    </FormSection>
   </div>
 </template>

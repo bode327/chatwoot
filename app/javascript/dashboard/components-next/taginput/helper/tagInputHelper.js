@@ -84,29 +84,25 @@ export const buildTagMenuItems = ({
   isLoading,
   type,
   isNewTagInValidType,
-  allowCreate = true,
-  skipLabelDedup = false,
 }) => {
   if (mode === MODE.SINGLE && tags.length >= 1) return [];
 
-  const availableMenuItems = skipLabelDedup
-    ? menuItems
-    : menuItems.filter(item => !tags.includes(item.label));
+  const availableMenuItems = menuItems.filter(
+    item => !tags.includes(item.label)
+  );
 
   // Show typed value as suggestion only if:
   // 1. There's a value being typed
   // 2. The value isn't already in the tags
   // 3. Validation passes (email/phone) and There are no menu items available
-  // 4. allowCreate is enabled
   const trimmedNewTag = newTag?.trim();
-  const shouldShowCreateSuggestion =
-    allowCreate &&
+  const shouldShowTypedValue =
     trimmedNewTag &&
     !tags.includes(trimmedNewTag) &&
     !isLoading &&
     !availableMenuItems.length;
 
-  if (shouldShowCreateSuggestion) {
+  if (shouldShowTypedValue) {
     const { isValid, formattedValue } = validateAndFormatNewTag(
       trimmedNewTag,
       type,

@@ -59,8 +59,8 @@ const togglePortalSwitcher = () => {
 
 <template>
   <section class="flex flex-col w-full h-full overflow-hidden bg-n-surface-1">
-    <header class="sticky top-0 z-10 px-6 pb-3">
-      <div class="w-full max-w-5xl mx-auto">
+    <header class="sticky top-0 z-10 px-6 pb-3 lg:px-0">
+      <div class="w-full max-w-[60rem] mx-auto lg:px-6">
         <div
           v-if="showHeaderTitle"
           class="flex items-center justify-start h-20 gap-2"
@@ -95,17 +95,16 @@ const togglePortalSwitcher = () => {
         <slot name="header-actions" />
       </div>
     </header>
-    <main class="flex-1 px-6 overflow-y-auto">
-      <div class="w-full max-w-5xl mx-auto py-3">
+    <main class="flex-1 px-6 overflow-y-auto lg:px-0">
+      <div class="w-full max-w-[60rem] mx-auto py-3 lg:px-6">
         <slot name="content" />
       </div>
     </main>
-    <footer v-if="showPaginationFooter" class="sticky bottom-0 z-10">
+    <footer v-if="showPaginationFooter" class="sticky bottom-0 z-10 px-4 pb-4">
       <PaginationFooter
         :current-page="currentPage"
         :total-items="totalItems"
         :items-per-page="itemsPerPage"
-        class="max-w-[67rem]"
         @update:current-page="updateCurrentPage"
       />
     </footer>

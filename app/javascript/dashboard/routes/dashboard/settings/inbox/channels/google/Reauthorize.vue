@@ -44,5 +44,8 @@ async function requestAuthorization() {
 </script>
 
 <template>
-  <InboxReconnectionRequired class="mx-6" @reauthorize="requestAuthorization" />
+  <InboxReconnectionRequired
+    class="mx-8 mt-5"
+    @reauthorize="requestAuthorization"
+  />
 </template>

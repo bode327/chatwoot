@@ -9,22 +9,25 @@ module Voice
         end
 
         def initiate_call(to:, conference_sid: nil, agent_id: nil)
-          Rails.logger.info "SIP Adapter: Initiating call to #{to} via #{@channel.provider_config['server']} using Gateway #{@channel.provider_config['gateway_url']}"
+          Rails.logger.info "SIP Adapter: Initiating call to #{to} via #{config['server']} using Gateway #{config['gateway_url']}"
 
           payload = {
             from: @channel.phone_number,
             to: to,
-            username: @channel.provider_config['username'],
-            password: @channel.provider_config['password'],
-            server: @channel.provider_config['server'],
+            username: config['username'],
+            password: config['password'],
+            server: config['server'],
             conference_sid: conference_sid,
             agent_id: agent_id,
-            webhook_token: @channel.provider_config['webhook_token']
+            webhook_token: config['webhook_token']
           }
 
           begin
+            gateway_url = config['gateway_url']
+            raise "Gateway URL is not configured" if gateway_url.blank?
+
             response = RestClient.post(
-              @channel.provider_config['gateway_url'],
+              gateway_url,
               payload.to_json,
               { content_type: :json, accept: :json }
             )

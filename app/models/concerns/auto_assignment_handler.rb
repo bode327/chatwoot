@@ -19,16 +19,8 @@ module AutoAssignmentHandler
       AutoAssignment::AssignmentJob.perform_later(inbox_id: inbox.id)
     else
       # Use legacy assignment system
-      # If conversation has a team, only consider team members for assignment
-      allowed_agent_ids = team_id.present? ? team_member_ids_with_capacity : inbox.member_ids_with_assignment_capacity
-      AutoAssignment::AgentAssignmentService.new(conversation: self, allowed_agent_ids: allowed_agent_ids).perform
+      AutoAssignment::AgentAssignmentService.new(conversation: self, allowed_agent_ids: inbox.member_ids_with_assignment_capacity).perform
     end
-  end
-
-  def team_member_ids_with_capacity
-    return [] if team.blank? || team.allow_auto_assign.blank?
-
-    inbox.member_ids_with_assignment_capacity & team.members.ids
   end
 
   def should_run_auto_assignment?

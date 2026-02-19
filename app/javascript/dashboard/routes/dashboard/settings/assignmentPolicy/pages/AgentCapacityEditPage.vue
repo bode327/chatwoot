@@ -184,12 +184,9 @@ onMounted(() => store.dispatch('agents/get'));
 </script>
 
 <template>
-  <SettingsLayout
-    :is-loading="uiFlags.isFetchingItem"
-    class="w-full max-w-2xl ltr:mr-auto rtl:ml-auto"
-  >
+  <SettingsLayout :is-loading="uiFlags.isFetchingItem" class="xl:px-44">
     <template #header>
-      <div class="flex items-center gap-2 w-full justify-between mb-4 min-h-10">
+      <div class="flex items-center gap-2 w-full justify-between">
         <Breadcrumb :items="breadcrumbItems" @click="handleBreadcrumbClick" />
       </div>
     </template>

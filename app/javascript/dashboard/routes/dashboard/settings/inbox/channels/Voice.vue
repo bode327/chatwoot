@@ -64,7 +64,7 @@ const state = reactive({
 
 const uiFlags = useMapGetter('inboxes/getUIFlags');
 
-const rules = {
+const rules = computed(() => ({
   phoneNumber: { required, isPhoneE164 },
   // Twilio Fields
   accountSid: { required: requiredIf(() => selectedProvider.value === PROVIDER_TYPES.TWILIO) },
@@ -76,7 +76,7 @@ const rules = {
   sipUsername: { required: requiredIf(() => selectedProvider.value === PROVIDER_TYPES.SIP) },
   sipPassword: { required: requiredIf(() => selectedProvider.value === PROVIDER_TYPES.SIP) },
   sipGatewayUrl: { required: requiredIf(() => selectedProvider.value === PROVIDER_TYPES.SIP) },
-};
+}));
 
 const v$ = useVuelidate(rules, state);
 

@@ -94,8 +94,7 @@ const createOption = (
   key,
   stateKey,
   disabled = false,
-  disabledMessage = '',
-  disabledLabel = ''
+  disabledMessage = ''
 ) => ({
   key,
   label: t(`${BASE_KEY}.FORM.${type}.${key.toUpperCase()}.LABEL`),
@@ -103,7 +102,6 @@ const createOption = (
   isActive: state[stateKey] === key,
   disabled,
   disabledMessage,
-  disabledLabel,
 });
 
 const assignmentOrderOptions = computed(() => {
@@ -118,17 +116,13 @@ const assignmentOrderOptions = computed(() => {
     const disabledMessage = disabled
       ? t(`${BASE_KEY}.FORM.ASSIGNMENT_ORDER.BALANCED.PREMIUM_MESSAGE`)
       : '';
-    const disabledLabel = disabled
-      ? t(`${BASE_KEY}.FORM.ASSIGNMENT_ORDER.BALANCED.PREMIUM_BADGE`)
-      : '';
 
     return createOption(
       'ASSIGNMENT_ORDER',
       key,
       'assignmentOrder',
       disabled,
-      disabledMessage,
-      disabledLabel
+      disabledMessage
     );
   });
 });
@@ -223,7 +217,6 @@ defineExpose({
                 :description="option.description"
                 :is-active="option.isActive"
                 :disabled="option.disabled"
-                :disabled-label="option.disabledLabel"
                 :disabled-message="option.disabledMessage"
                 @select="state[section.key] = $event"
               />

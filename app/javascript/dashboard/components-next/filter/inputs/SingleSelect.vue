@@ -12,12 +12,10 @@ import DropdownItem from 'next/dropdown-menu/base/DropdownItem.vue';
 const {
   options,
   disableSearch,
-  disableDeselect,
   placeholderIcon,
   placeholder,
   placeholderTrailingIcon,
   searchPlaceholder,
-  dropdownMaxHeight,
 } = defineProps({
   options: {
     type: Array,
@@ -43,14 +41,6 @@ const {
     type: String,
     default: '',
   },
-  dropdownMaxHeight: {
-    type: String,
-    default: 'max-h-80',
-  },
-  disableDeselect: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 const { t } = useI18n();
@@ -73,8 +63,6 @@ const selectedItem = computed(() => {
   const optionToSearch = Array.isArray(selected.value)
     ? selected.value[0]
     : selected.value;
-
-  if (!optionToSearch) return null;
   // extract the selected item from the options array
   // this ensures that options like icon is also included
   return options.find(option => option.id === optionToSearch.id);
@@ -89,7 +77,7 @@ const toggleSelected = option => {
   };
 
   if (selected.value && selected.value.id === optionToToggle.id) {
-    if (!disableDeselect) selected.value = null;
+    selected.value = null;
   } else {
     selected.value = optionToToggle;
   }
@@ -136,7 +124,7 @@ const toggleSelected = option => {
           :placeholder="searchPlaceholder || t('COMBOBOX.SEARCH_PLACEHOLDER')"
         />
       </div>
-      <DropdownSection :height="dropdownMaxHeight">
+      <DropdownSection class="[&>ul]:max-h-80">
         <template v-if="searchResults.length">
           <DropdownItem
             v-for="option in searchResults"

@@ -2,14 +2,8 @@
 import { useAlert } from 'dashboard/composables';
 import { messageTimestamp } from 'shared/helpers/timeHelper';
 import { useStoreGetters, useStore } from 'dashboard/composables/store';
-import {
-  BaseTable,
-  BaseTableRow,
-  BaseTableCell,
-} from 'dashboard/components-next/table';
-import PaginationFooter from 'dashboard/components-next/pagination/PaginationFooter.vue';
+import TableFooter from 'dashboard/components/widgets/TableFooter.vue';
 import BaseSettingsHeader from '../components/BaseSettingsHeader.vue';
-import SettingsLayout from '../SettingsLayout.vue';
 import {
   generateTranslationPayload,
   generateLogActionKey,
@@ -81,68 +75,63 @@ const tableHeaders = computed(() => {
 </script>
 
 <template>
-  <SettingsLayout
-    :is-loading="uiFlags.fetchingList"
-    :loading-message="$t('AUDIT_LOGS.LOADING')"
-    :no-records-found="!records.length"
-    :no-records-message="$t('AUDIT_LOGS.LIST.404')"
-  >
-    <template #header>
-      <BaseSettingsHeader
-        :title="$t('AUDIT_LOGS.HEADER')"
-        :description="$t('AUDIT_LOGS.DESCRIPTION')"
-        :link-text="$t('AUDIT_LOGS.LEARN_MORE')"
-        feature-name="audit_logs"
+  <div class="flex-1 overflow-auto">
+    <BaseSettingsHeader
+      :title="$t('AUDIT_LOGS.HEADER')"
+      :description="$t('AUDIT_LOGS.DESCRIPTION')"
+      :link-text="$t('AUDIT_LOGS.LEARN_MORE')"
+      feature-name="audit_logs"
+    />
+
+    <div class="mt-6 flex-1 text-n-slate-11">
+      <woot-loading-state
+        v-if="uiFlags.fetchingList"
+        :message="$t('AUDIT_LOGS.LOADING')"
       />
-    </template>
-    <template #body>
-      <div class="flex flex-col">
-        <BaseTable :headers="tableHeaders" :items="records">
-          <template #row="{ items }">
-            <BaseTableRow
-              v-for="auditLogItem in items"
-              :key="auditLogItem.id"
-              :item="auditLogItem"
+      <p
+        v-else-if="!records.length"
+        class="flex flex-col items-center justify-center h-full text-base p-8"
+      >
+        {{ $t('AUDIT_LOGS.LIST.404') }}
+      </p>
+      <div v-else class="min-w-full overflow-x-auto">
+        <table class="divide-y divide-n-weak">
+          <thead>
+            <th
+              v-for="thHeader in tableHeaders"
+              :key="thHeader"
+              class="py-4 ltr:pr-4 rtl:pl-4 text-left font-semibold text-n-slate-11"
             >
-              <template #default>
-                <BaseTableCell>
-                  <span
-                    class="text-body-main text-n-slate-12 whitespace-nowrap"
-                  >
-                    {{ generateLogText(auditLogItem) }}
-                  </span>
-                </BaseTableCell>
-
-                <BaseTableCell>
-                  <span
-                    class="text-body-main text-n-slate-11 whitespace-nowrap"
-                  >
-                    {{
-                      messageTimestamp(
-                        auditLogItem.created_at,
-                        'MMM dd, yyyy hh:mm a'
-                      )
-                    }}
-                  </span>
-                </BaseTableCell>
-
-                <BaseTableCell class="w-36">
-                  <span class="text-body-main text-n-slate-11">
-                    {{ auditLogItem.remote_address }}
-                  </span>
-                </BaseTableCell>
-              </template>
-            </BaseTableRow>
-          </template>
-        </BaseTable>
-        <PaginationFooter
+              {{ thHeader }}
+            </th>
+          </thead>
+          <tbody class="divide-y divide-n-weak text-n-slate-11">
+            <tr v-for="auditLogItem in records" :key="auditLogItem.id">
+              <td class="py-4 ltr:pr-4 rtl:pl-4 break-all whitespace-nowrap">
+                {{ generateLogText(auditLogItem) }}
+              </td>
+              <td class="py-4 ltr:pr-4 rtl:pl-4 break-all whitespace-nowrap">
+                {{
+                  messageTimestamp(
+                    auditLogItem.created_at,
+                    'MMM dd, yyyy hh:mm a'
+                  )
+                }}
+              </td>
+              <td class="py-4 w-[8.75rem]">
+                {{ auditLogItem.remote_address }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <TableFooter
           :current-page="Number(meta.currentPage)"
-          :total-items="meta.totalEntries"
-          :items-per-page="meta.perPage"
-          class="!px-0"
-          @update:current-page="onPageChange"
+          :total-count="meta.totalEntries"
+          :page-size="meta.perPage"
+          class="border-n-weak border-t !px-0 py-4"
+          @page-change="onPageChange"
         />
       </div>
-    </template>
-  </SettingsLayout>
+    </div>
+  </div>
 </template>

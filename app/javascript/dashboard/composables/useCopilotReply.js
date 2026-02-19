@@ -3,10 +3,6 @@ import { useCaptain } from 'dashboard/composables/useCaptain';
 import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useTrack } from 'dashboard/composables';
 import { CAPTAIN_EVENTS } from 'dashboard/helper/AnalyticsHelper/events';
-import {
-  CAPTAIN_ERROR_TYPES,
-  CAPTAIN_GENERATION_FAILURE_REASONS,
-} from 'dashboard/composables/captain/constants';
 
 // Actions that map to REWRITE events (with operation attribute)
 const REWRITE_ACTIONS = [
@@ -54,20 +50,6 @@ function buildPayload(action, conversationId, followUpCount = undefined) {
   }
 
   return payload;
-}
-
-function trackGenerationFailure({
-  action,
-  conversationId,
-  followUpCount = undefined,
-  stage,
-  reason,
-}) {
-  useTrack(CAPTAIN_EVENTS.GENERATION_FAILED, {
-    ...buildPayload(action, conversationId, followUpCount),
-    stage,
-    reason,
-  });
 }
 
 /**
@@ -164,8 +146,7 @@ export function useCopilotReply() {
 
     // Reset without tracking dismiss (starting new action)
     reset(false);
-    const requestController = new AbortController();
-    abortController.value = requestController;
+    abortController.value = new AbortController();
     isGenerating.value = true;
     isContentReady.value = false;
     currentAction.value = action;
@@ -173,66 +154,28 @@ export function useCopilotReply() {
     trackedConversationId.value = conversationId.value;
 
     try {
-      const {
-        message: content,
-        followUpContext: newContext,
-        errorType,
-      } = await processEvent(action, data, {
-        signal: requestController.signal,
-      });
+      const { message: content, followUpContext: newContext } =
+        await processEvent(action, data, {
+          signal: abortController.value.signal,
+        });
 
-      if (requestController.signal.aborted) return;
-      if (errorType === CAPTAIN_ERROR_TYPES.ABORTED) {
-        if (abortController.value === requestController) {
-          isGenerating.value = false;
+      if (!abortController.value?.signal.aborted) {
+        generatedContent.value = content;
+        followUpContext.value = newContext;
+        if (content) {
+          showEditor.value = true;
+          // Track "Used" event on successful generation
+          const eventKey = `${getEventPrefix(action)}_USED`;
+          useTrack(
+            CAPTAIN_EVENTS[eventKey],
+            buildPayload(action, trackedConversationId.value)
+          );
         }
-        return;
+        isGenerating.value = false;
       }
-
-      generatedContent.value = content;
-      followUpContext.value = newContext;
-      if (content) {
-        showEditor.value = true;
-        // Track "Used" event on successful generation
-        const eventKey = `${getEventPrefix(action)}_USED`;
-        useTrack(
-          CAPTAIN_EVENTS[eventKey],
-          buildPayload(action, trackedConversationId.value)
-        );
-      } else if (errorType && errorType !== CAPTAIN_ERROR_TYPES.ABORTED) {
-        trackGenerationFailure({
-          action,
-          conversationId: trackedConversationId.value,
-          stage: 'initial',
-          reason: errorType,
-        });
-      } else {
-        trackGenerationFailure({
-          action,
-          conversationId: trackedConversationId.value,
-          stage: 'initial',
-          reason: CAPTAIN_GENERATION_FAILURE_REASONS.EMPTY_RESPONSE,
-        });
-      }
-      isGenerating.value = false;
-    } catch (error) {
-      if (
-        requestController.signal.aborted ||
-        error?.name === CAPTAIN_ERROR_TYPES.ABORT_ERROR ||
-        error?.name === CAPTAIN_ERROR_TYPES.CANCELED_ERROR
-      ) {
-        return;
-      }
-      trackGenerationFailure({
-        action,
-        conversationId: trackedConversationId.value,
-        stage: 'initial',
-        reason: error?.name || CAPTAIN_GENERATION_FAILURE_REASONS.EXCEPTION,
-      });
-      isGenerating.value = false;
-    } finally {
-      if (abortController.value === requestController) {
-        abortController.value = null;
+    } catch {
+      if (!abortController.value?.signal.aborted) {
+        isGenerating.value = false;
       }
     }
   }
@@ -244,8 +187,7 @@ export function useCopilotReply() {
   async function sendFollowUp(message) {
     if (!followUpContext.value || !message.trim()) return;
 
-    const requestController = new AbortController();
-    abortController.value = requestController;
+    abortController.value = new AbortController();
     isGenerating.value = true;
     isContentReady.value = false;
 
@@ -256,65 +198,24 @@ export function useCopilotReply() {
     followUpCount.value += 1;
 
     try {
-      const {
-        message: content,
-        followUpContext: updatedContext,
-        errorType,
-      } = await followUp({
-        followUpContext: followUpContext.value,
-        message,
-        signal: requestController.signal,
-      });
+      const { message: content, followUpContext: updatedContext } =
+        await followUp({
+          followUpContext: followUpContext.value,
+          message,
+          signal: abortController.value.signal,
+        });
 
-      if (requestController.signal.aborted) return;
-      if (errorType === CAPTAIN_ERROR_TYPES.ABORTED) {
-        if (abortController.value === requestController) {
-          isGenerating.value = false;
+      if (!abortController.value?.signal.aborted) {
+        if (content) {
+          generatedContent.value = content;
+          followUpContext.value = updatedContext;
+          showEditor.value = true;
         }
-        return;
+        isGenerating.value = false;
       }
-
-      if (content) {
-        generatedContent.value = content;
-        followUpContext.value = updatedContext;
-        showEditor.value = true;
-      } else if (errorType && errorType !== CAPTAIN_ERROR_TYPES.ABORTED) {
-        trackGenerationFailure({
-          action: currentAction.value,
-          conversationId: trackedConversationId.value,
-          followUpCount: followUpCount.value,
-          stage: 'follow_up',
-          reason: errorType,
-        });
-      } else {
-        trackGenerationFailure({
-          action: currentAction.value,
-          conversationId: trackedConversationId.value,
-          followUpCount: followUpCount.value,
-          stage: 'follow_up',
-          reason: CAPTAIN_GENERATION_FAILURE_REASONS.EMPTY_RESPONSE,
-        });
-      }
-      isGenerating.value = false;
-    } catch (error) {
-      if (
-        requestController.signal.aborted ||
-        error?.name === CAPTAIN_ERROR_TYPES.ABORT_ERROR ||
-        error?.name === CAPTAIN_ERROR_TYPES.CANCELED_ERROR
-      ) {
-        return;
-      }
-      trackGenerationFailure({
-        action: currentAction.value,
-        conversationId: trackedConversationId.value,
-        followUpCount: followUpCount.value,
-        stage: 'follow_up',
-        reason: error?.name || CAPTAIN_GENERATION_FAILURE_REASONS.EXCEPTION,
-      });
-      isGenerating.value = false;
-    } finally {
-      if (abortController.value === requestController) {
-        abortController.value = null;
+    } catch {
+      if (!abortController.value?.signal.aborted) {
+        isGenerating.value = false;
       }
     }
   }

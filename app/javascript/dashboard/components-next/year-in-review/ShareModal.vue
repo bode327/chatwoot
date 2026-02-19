@@ -18,7 +18,7 @@ const props = defineProps({
   },
   year: {
     type: [Number, String],
-    default: '',
+    required: true,
   },
 });
 

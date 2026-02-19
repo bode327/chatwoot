@@ -1,5 +1,6 @@
 <script setup>
-import Icon from 'next/icon/Icon.vue';
+import { computed } from 'vue';
+import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 defineProps({
   title: {
@@ -37,7 +38,7 @@ defineProps({
     </div>
 
     <div class="flex flex-col items-start gap-1.5">
-      <h3 class="text-n-slate-12 text-sm text-start font-medium capitalize">
+      <h3 class="text-n-slate-12 text-start text-sm font-medium capitalize">
         {{ title }}
       </h3>
       <p class="text-n-slate-11 text-start text-sm">

@@ -51,6 +51,7 @@ export default {
   data() {
     return {
       showEditModal: false,
+      showMergeModal: false,
       showDeleteModal: false,
     };
   },
@@ -166,8 +167,11 @@ export default {
         );
       }
     },
+    closeMergeModal() {
+      this.showMergeModal = false;
+    },
     openMergeModal() {
-      this.$refs.mergeModal?.open();
+      this.showMergeModal = true;
     },
   },
 };
@@ -320,7 +324,12 @@ export default {
         :contact="contact"
         @cancel="toggleEditModal"
       />
-      <ContactMergeModal ref="mergeModal" :primary-contact="contact" />
+      <ContactMergeModal
+        v-if="showMergeModal"
+        :primary-contact="contact"
+        :show="showMergeModal"
+        @close="closeMergeModal"
+      />
     </div>
     <woot-delete-modal
       v-if="showDeleteModal"

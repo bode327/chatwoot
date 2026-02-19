@@ -56,13 +56,8 @@ const selectedLabel = computed(() => {
 });
 
 const selectOption = option => {
-  if (selectedValue.value === option.value) {
-    selectedValue.value = '';
-    emit('update:modelValue', '');
-  } else {
-    selectedValue.value = option.value;
-    emit('update:modelValue', option.value);
-  }
+  selectedValue.value = option.value;
+  emit('update:modelValue', option.value);
   open.value = false;
   search.value = '';
 };

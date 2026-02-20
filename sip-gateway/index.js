@@ -143,8 +143,27 @@ const wss = new WebSocket.Server({
   }
 });
 
+// Heartbeat implementation to keep connection alive
+function heartbeat() {
+  this.isAlive = true;
+}
+
+const interval = setInterval(function ping() {
+  wss.clients.forEach(function each(ws) {
+    if (ws.isAlive === false) return ws.terminate();
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 30000);
+
+wss.on('close', function close() {
+  clearInterval(interval);
+});
+
 wss.on('connection', (ws) => {
   console.log('WS Client connected');
+  ws.isAlive = true;
+  ws.on('pong', heartbeat);
 
   ws.on('message', (message) => {
     const msgStr = message.toString();
@@ -232,6 +251,7 @@ wss.on('connection', (ws) => {
       }
 
       // Send UDP
+      // console.log(`Forwarding WS->UDP: ${destHost}:${destPort} ${modifiedMsg.split('\r\n')[0]}`);
       const buffer = Buffer.from(modifiedMsg);
       udpSocket.send(buffer, destPort, destHost, (err) => {
         if (err) console.error('UDP Send Error:', err);

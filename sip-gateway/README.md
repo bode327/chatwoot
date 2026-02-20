@@ -44,7 +44,7 @@ The WebSocket server listens on `ws://localhost:8080/sip` by default.
 
 1.  In Chatwoot, configure your Inbox.
 2.  Set the **Gateway URL** (or WebSocket URL) to `ws://localhost:8080/sip` (or your public IP).
-    - Or set `SIP_GATEWAY_URL=wss://your-domain.com/sip` in environment variables to set a global default.
+    - Or set `SIP_GATEWAY_URL=ws://your-domain.com/sip` in environment variables to set a global default.
 3.  Set the **Domain** to your SIP Provider's domain.
 4.  Set **Username** and **Password** as usual.
 
@@ -77,4 +77,13 @@ Then configure `SIP_GATEWAY_URL` as `wss://your-chatwoot-domain.com/sip`.
 
 **Conflict Note:** This gateway runs on a separate port (8080) and uses the path `/sip` to avoid conflicts with Chatwoot's main WebSocket service (ActionCable) which uses `/cable`.
 
-**Media Note:** This gateway handles SIP Signaling only. For audio (RTP) to work with generic providers, you typically need a Media Relay (like RTPEngine or RTPProxy) to handle the conversion between WebRTC (DTLS-SRTP) and SIP (RTP). This gateway implementation assumes the provider supports ICE/STUN or that a media relay is configured externally.
+### Media (Audio/Video) Limitations
+
+**Important:** This gateway handles **Signaling (SIP)** only. It does not transcode media.
+
+-   Browsers use **WebRTC**, which requires encryption (DTLS-SRTP) and ICE for NAT traversal.
+-   Generic SIP Providers usually expect standard **RTP** over UDP without encryption or ICE.
+
+If your provider does not support WebRTC/SRTP directly, you will experience **Silence** (Signaling works, Media fails).
+
+**Solution:** You must use a Media Relay (e.g., RTPEngine, RTPProxy, or FreeSWITCH) to bridge the media between the browser and the provider. Integrating a full media relay is outside the scope of this lightweight gateway service.

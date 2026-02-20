@@ -1,5 +1,5 @@
 <script>
-import { defineAsyncComponent, ref, computed } from 'vue';
+import { defineAsyncComponent, ref, computed, watch } from 'vue';
 
 import NextSidebar from 'next/sidebar/Sidebar.vue';
 import WootKeyShortcutModal from 'dashboard/components/widgets/modal/WootKeyShortcutModal.vue';
@@ -20,11 +20,17 @@ const FloatingCallWidget = defineAsyncComponent(
   () => import('dashboard/components/widgets/FloatingCallWidget.vue')
 );
 
+const Webphone = defineAsyncComponent(
+  () => import('dashboard/components/widgets/Webphone.vue')
+);
+
 import CopilotLauncher from 'dashboard/components-next/copilot/CopilotLauncher.vue';
 import CopilotContainer from 'dashboard/components/copilot/CopilotContainer.vue';
 
 import MobileSidebarLauncher from 'dashboard/components-next/sidebar/MobileSidebarLauncher.vue';
 import { useCallsStore } from 'dashboard/stores/calls';
+import { sipClient } from 'dashboard/helper/SipClient';
+import { useStore } from 'dashboard/composables/store';
 
 export default {
   components: {
@@ -37,6 +43,7 @@ export default {
     CopilotContainer,
     FloatingCallWidget,
     MobileSidebarLauncher,
+    Webphone,
   },
   setup() {
     const upgradePageRef = ref(null);
@@ -44,6 +51,19 @@ export default {
     const { accountId } = useAccount();
     const { width: windowWidth } = useWindowSize();
     const callsStore = useCallsStore();
+    const store = useStore();
+    sipClient.setStore(store);
+
+    const inboxes = computed(() => store.getters['inboxes/getInboxes']);
+    watch(inboxes, (allInboxes) => {
+      const sipInbox = allInboxes.find(
+        i => i.channel_type === 'Channel::Voice' && i.provider === 'sip'
+      );
+      if (sipInbox) {
+        sipClient.configure(sipInbox);
+        sipClient.connect();
+      }
+    });
 
     return {
       uiSettings,
@@ -163,6 +183,7 @@ export default {
         />
         <CopilotContainer />
         <FloatingCallWidget v-if="hasActiveCall || hasIncomingCall" />
+        <Webphone />
       </template>
       <AddAccountModal
         :show="showCreateAccountModal"

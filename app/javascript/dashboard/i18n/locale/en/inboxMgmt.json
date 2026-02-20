@@ -362,10 +362,14 @@
         "SIP": {
           "TITLE": "SIP Voice Channel",
           "DESC": "Integrate SIP Voice and start supporting your customers via phone calls.",
-          "SERVER": {
-            "LABEL": "Server",
-            "PLACEHOLDER": "Enter your SIP Server URL",
-            "REQUIRED": "Server is required"
+          "DOMAIN": {
+            "LABEL": "SIP Domain / Proxy",
+            "PLACEHOLDER": "e.g. sip.provider.com",
+            "REQUIRED": "Domain is required"
+          },
+          "WEBSOCKET_URL": {
+            "LABEL": "WebSocket URL (WSS)",
+            "PLACEHOLDER": "e.g. wss://sip.provider.com:7443"
           },
           "USERNAME": {
             "LABEL": "Username",

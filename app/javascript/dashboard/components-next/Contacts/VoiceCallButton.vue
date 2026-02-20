@@ -7,6 +7,7 @@ import { INBOX_TYPES } from 'dashboard/helper/inbox';
 import { useAlert } from 'dashboard/composables';
 import { frontendURL, conversationUrl } from 'dashboard/helper/URLHelper';
 import { useCallsStore } from 'dashboard/stores/calls';
+import { sipClient } from 'dashboard/helper/SipClient';
 
 import Button from 'dashboard/components-next/button/Button.vue';
 import Dialog from 'dashboard/components-next/dialog/Dialog.vue';
@@ -62,6 +63,17 @@ const navigateToConversation = conversationId => {
 
 const startCall = async inboxId => {
   if (isInitiatingCall.value) return;
+
+  const inbox = voiceInboxes.value.find(i => i.id === inboxId);
+  if (inbox?.provider === 'sip') {
+    try {
+      await sipClient.call(props.phone, inbox, props.contactId);
+      useAlert(t('CONTACT_PANEL.CALL_INITIATED'));
+    } catch (error) {
+      useAlert(error?.message || t('CONTACT_PANEL.CALL_FAILED'));
+    }
+    return;
+  }
 
   try {
     const response = await store.dispatch('contacts/initiateCall', {

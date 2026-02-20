@@ -17,7 +17,8 @@ const router = useRouter();
 
 const state = reactive({
   phoneNumber: '',
-  server: '',
+  domain: '',
+  websocketUrl: '',
   username: '',
   password: '',
 });
@@ -26,7 +27,8 @@ const uiFlags = useMapGetter('inboxes/getUIFlags');
 
 const validationRules = {
   phoneNumber: { required, isPhoneE164 },
-  server: { required },
+  domain: { required },
+  websocketUrl: {}, // Optional for now
   username: { required },
   password: { required },
 };
@@ -38,8 +40,8 @@ const formErrors = computed(() => ({
   phoneNumber: v$.value.phoneNumber?.$error
     ? t('INBOX_MGMT.ADD.VOICE.PHONE_NUMBER.ERROR')
     : '',
-  server: v$.value.server?.$error
-    ? t('INBOX_MGMT.ADD.VOICE.SIP.SERVER.REQUIRED')
+  domain: v$.value.domain?.$error
+    ? t('INBOX_MGMT.ADD.VOICE.SIP.DOMAIN.REQUIRED')
     : '',
   username: v$.value.username?.$error
     ? t('INBOX_MGMT.ADD.VOICE.SIP.USERNAME.REQUIRED')
@@ -57,9 +59,12 @@ const callbackURL = computed(() => {
 
 function getProviderConfig() {
   const config = {
-    server: state.server,
+    domain: state.domain,
+    websocket_url: state.websocketUrl,
     username: state.username,
     password: state.password,
+    // Legacy support for backend adapter which expects 'server'
+    server: state.domain.startsWith('http') ? state.domain : `https://${state.domain}`,
   };
   return config;
 }
@@ -106,12 +111,20 @@ async function createChannel() {
     />
 
     <Input
-      v-model="state.server"
-      :label="t('INBOX_MGMT.ADD.VOICE.SIP.SERVER.LABEL')"
-      :placeholder="t('INBOX_MGMT.ADD.VOICE.SIP.SERVER.PLACEHOLDER')"
-      :message="formErrors.server"
-      :message-type="formErrors.server ? 'error' : 'info'"
-      @blur="v$.server?.$touch"
+      v-model="state.domain"
+      :label="t('INBOX_MGMT.ADD.VOICE.SIP.DOMAIN.LABEL')"
+      :placeholder="t('INBOX_MGMT.ADD.VOICE.SIP.DOMAIN.PLACEHOLDER')"
+      :message="formErrors.domain"
+      :message-type="formErrors.domain ? 'error' : 'info'"
+      @blur="v$.domain?.$touch"
+    />
+
+    <Input
+      v-model="state.websocketUrl"
+      :label="t('INBOX_MGMT.ADD.VOICE.SIP.WEBSOCKET_URL.LABEL')"
+      :placeholder="t('INBOX_MGMT.ADD.VOICE.SIP.WEBSOCKET_URL.PLACEHOLDER')"
+      message=""
+      message-type="info"
     />
 
     <Input

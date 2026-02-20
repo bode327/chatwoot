@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed } from 'vue';
+import { reactive, computed, onMounted, defineComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useVuelidate } from '@vuelidate/core';
@@ -10,10 +10,20 @@ import { useStore, useMapGetter } from 'dashboard/composables/store';
 
 import Input from 'dashboard/components-next/input/Input.vue';
 import NextButton from 'dashboard/components-next/button/Button.vue';
+import SettingsFieldSection from 'dashboard/components-next/Settings/SettingsFieldSection.vue';
+
+const props = defineProps({
+  inbox: {
+    type: Object,
+    default: null,
+  },
+});
 
 const { t } = useI18n();
 const store = useStore();
 const router = useRouter();
+
+const isEditing = computed(() => !!props.inbox);
 
 const state = reactive({
   phoneNumber: '',
@@ -23,17 +33,36 @@ const state = reactive({
   password: '',
 });
 
+// Populate form if editing
+onMounted(() => {
+  if (isEditing.value && props.inbox.provider_config) {
+    const { provider_config, phone_number } = props.inbox;
+    state.phoneNumber = phone_number || '';
+    state.domain = provider_config.domain || '';
+    state.websocketUrl = provider_config.websocket_url || '';
+    state.username = provider_config.username || '';
+    state.password = provider_config.password || '';
+  }
+});
+
 const uiFlags = useMapGetter('inboxes/getUIFlags');
 
-const validationRules = {
-  phoneNumber: { required, isPhoneE164 },
-  domain: { required },
-  websocketUrl: {}, // Optional for now
-  username: { required },
-  password: { required },
-};
+const validationRules = computed(() => {
+   const rules = {
+      domain: { required },
+      username: { required },
+      password: { required },
+      phoneNumber: { required },
+   };
+   // If creating, validate phone number format
+   if (!isEditing.value) {
+      rules.phoneNumber = { required, isPhoneE164 };
+   }
+   return rules;
+});
 
 const v$ = useVuelidate(validationRules, state);
+
 const isSubmitDisabled = computed(() => v$.value.$invalid);
 
 const formErrors = computed(() => ({
@@ -52,27 +81,34 @@ const formErrors = computed(() => ({
 }));
 
 const callbackURL = computed(() => {
-  if (!state.phoneNumber) return '';
-  const digits = state.phoneNumber.replace(/\D/g, '');
+  const phone = state.phoneNumber || (props.inbox ? props.inbox.phone_number : '');
+  if (!phone) return '';
+  const digits = phone.replace(/\D/g, '');
   return `${window.location.origin}/webhooks/sip/${digits}`;
 });
 
 function getProviderConfig() {
-  const config = {
+  return {
     domain: state.domain,
     websocket_url: state.websocketUrl,
     username: state.username,
     password: state.password,
-    // Legacy support for backend adapter which expects 'server'
     server: state.domain.startsWith('http') ? state.domain : `https://${state.domain}`,
   };
-  return config;
 }
 
-async function createChannel() {
+async function handleSubmit() {
   const isFormValid = await v$.value.$validate();
   if (!isFormValid) return;
 
+  if (isEditing.value) {
+    await updateChannel();
+  } else {
+    await createChannel();
+  }
+}
+
+async function createChannel() {
   try {
     const channel = await store.dispatch('inboxes/createVoiceChannel', {
       name: `Voice (${state.phoneNumber})`,
@@ -94,12 +130,29 @@ async function createChannel() {
     );
   }
 }
+
+async function updateChannel() {
+  try {
+    const payload = {
+       id: props.inbox.id,
+       formData: false,
+       channel: {
+          provider_config: getProviderConfig(),
+       },
+    };
+
+    await store.dispatch('inboxes/updateInbox', payload);
+    useAlert(t('INBOX_MGMT.EDIT.API.SUCCESS_MESSAGE'));
+  } catch (error) {
+     useAlert(t('INBOX_MGMT.EDIT.API.ERROR_MESSAGE'));
+  }
+}
 </script>
 
 <template>
   <form
     class="flex flex-col gap-4 flex-wrap mx-0"
-    @submit.prevent="createChannel"
+    @submit.prevent="handleSubmit"
   >
     <Input
       v-model="state.phoneNumber"
@@ -107,6 +160,7 @@ async function createChannel() {
       :placeholder="t('INBOX_MGMT.ADD.VOICE.PHONE_NUMBER.PLACEHOLDER')"
       :message="formErrors.phoneNumber"
       :message-type="formErrors.phoneNumber ? 'error' : 'info'"
+      :disabled="isEditing"
       @blur="v$.phoneNumber?.$touch"
     />
 
@@ -146,7 +200,19 @@ async function createChannel() {
       @blur="v$.password?.$touch"
     />
 
-    <div v-if="state.phoneNumber" class="flex flex-col gap-1 mb-4">
+    <SettingsFieldSection
+      v-if="isEditing"
+      :label="t('INBOX_MGMT.ADD.VOICE.API_CALLBACK.TITLE')"
+      :help-text="t('INBOX_MGMT.ADD.VOICE.API_CALLBACK.SUBTITLE')"
+    >
+      <div
+        class="flex items-center justify-between px-3 py-2 text-sm border rounded-md bg-n-alpha-1 border-n-weak text-n-slate-12"
+      >
+        <span class="truncate">{{ callbackURL }}</span>
+      </div>
+    </SettingsFieldSection>
+
+    <div v-if="!isEditing && state.phoneNumber" class="flex flex-col gap-1 mb-4">
       <label class="text-xs font-semibold text-n-slate-12">
         {{ t('INBOX_MGMT.ADD.VOICE.API_CALLBACK.TITLE') }}
       </label>
@@ -162,9 +228,9 @@ async function createChannel() {
 
     <div>
       <NextButton
-        :is-loading="uiFlags.isCreating"
+        :is-loading="isEditing ? uiFlags.isUpdating : uiFlags.isCreating"
         :disabled="isSubmitDisabled"
-        :label="t('INBOX_MGMT.ADD.VOICE.SUBMIT_BUTTON')"
+        :label="isEditing ? t('INBOX_MGMT.SETTINGS_POPUP.UPDATE') : t('INBOX_MGMT.ADD.VOICE.SUBMIT_BUTTON')"
         type="submit"
       />
     </div>

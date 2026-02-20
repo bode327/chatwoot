@@ -9,6 +9,7 @@ import { required } from '@vuelidate/validators';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import TextArea from 'next/textarea/TextArea.vue';
 import WhatsappReauthorize from '../channels/whatsapp/Reauthorize.vue';
+import SipConfiguration from '../channels/SipConfiguration.vue';
 import { sanitizeAllowedDomains } from 'dashboard/helper/URLHelper';
 
 export default {
@@ -19,6 +20,7 @@ export default {
     NextButton,
     TextArea,
     WhatsappReauthorize,
+    SipConfiguration,
   },
   mixins: [inboxMixin],
   props: {
@@ -52,6 +54,9 @@ export default {
     },
     isForwardingEnabled() {
       return !!this.inbox.forwarding_enabled;
+    },
+    isSIPChannel() {
+      return this.inbox.channel_type === 'Channel::Voice' && this.inbox.provider === 'sip';
     },
   },
   watch: {
@@ -169,22 +174,27 @@ export default {
     </SettingsFieldSection>
   </div>
   <div v-else-if="isAVoiceChannel" class="mx-6">
-    <SettingsFieldSection
-      :label="$t('INBOX_MGMT.ADD.VOICE.CONFIGURATION.TWILIO_VOICE_URL_TITLE')"
-      :help-text="
-        $t('INBOX_MGMT.ADD.VOICE.CONFIGURATION.TWILIO_VOICE_URL_SUBTITLE')
-      "
-    >
-      <woot-code :script="inbox.voice_call_webhook_url" lang="html" />
-    </SettingsFieldSection>
-    <SettingsFieldSection
-      :label="$t('INBOX_MGMT.ADD.VOICE.CONFIGURATION.TWILIO_STATUS_URL_TITLE')"
-      :help-text="
-        $t('INBOX_MGMT.ADD.VOICE.CONFIGURATION.TWILIO_STATUS_URL_SUBTITLE')
-      "
-    >
-      <woot-code :script="inbox.voice_status_webhook_url" lang="html" />
-    </SettingsFieldSection>
+    <template v-if="isSIPChannel">
+       <SipConfiguration :inbox="inbox" />
+    </template>
+    <template v-else>
+      <SettingsFieldSection
+        :label="$t('INBOX_MGMT.ADD.VOICE.CONFIGURATION.TWILIO_VOICE_URL_TITLE')"
+        :help-text="
+          $t('INBOX_MGMT.ADD.VOICE.CONFIGURATION.TWILIO_VOICE_URL_SUBTITLE')
+        "
+      >
+        <woot-code :script="inbox.voice_call_webhook_url" lang="html" />
+      </SettingsFieldSection>
+      <SettingsFieldSection
+        :label="$t('INBOX_MGMT.ADD.VOICE.CONFIGURATION.TWILIO_STATUS_URL_TITLE')"
+        :help-text="
+          $t('INBOX_MGMT.ADD.VOICE.CONFIGURATION.TWILIO_STATUS_URL_SUBTITLE')
+        "
+      >
+        <woot-code :script="inbox.voice_status_webhook_url" lang="html" />
+      </SettingsFieldSection>
+    </template>
   </div>
 
   <div v-else-if="isALineChannel" class="mx-6">

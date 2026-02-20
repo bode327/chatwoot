@@ -151,6 +151,7 @@ class SipClient {
 
       await this.userAgent.start();
     } catch (error) {
+      console.error('SIP: Failed to start UserAgent', error);
       this.store?.dispatch('sip/updateStatus', 'error');
       this.store?.dispatch('sip/setError', error.message);
     }
@@ -158,17 +159,29 @@ class SipClient {
 
   async register() {
     if (!this.userAgent) return;
-    this.registerer = new Registerer(this.userAgent);
-    await this.registerer.register();
+    try {
+      this.registerer = new Registerer(this.userAgent);
+      await this.registerer.register();
+    } catch (e) {
+      console.error('SIP: Registration failed', e);
+    }
   }
 
   async disconnect(full = true) {
     if (this.registerer) {
-      await this.registerer.unregister();
+      try {
+        await this.registerer.unregister();
+      } catch (e) {
+        // ignore
+      }
       this.registerer = null;
     }
     if (this.userAgent) {
-      await this.userAgent.stop();
+      try {
+        await this.userAgent.stop();
+      } catch (e) {
+        // ignore
+      }
       this.userAgent = null;
     }
     this.store?.dispatch('sip/updateStatus', 'disconnected');

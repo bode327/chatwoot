@@ -1,5 +1,29 @@
 <template>
-  <div v-if="hasSessions" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 w-80">
+  <div class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 w-80">
+    <!-- Status Indicator -->
+    <div
+      v-if="showStatus"
+      class="bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 px-3 py-2 flex items-center justify-between"
+    >
+      <div class="flex items-center gap-2">
+        <span
+          class="w-2.5 h-2.5 rounded-full"
+          :class="{
+            'bg-green-500': sipStatus === 'connected',
+            'bg-yellow-500': sipStatus === 'connecting',
+            'bg-red-500': sipStatus === 'disconnected' || sipStatus === 'error'
+          }"
+        ></span>
+        <span class="text-xs font-medium text-slate-600 dark:text-slate-300">
+           {{ sipStatusLabel }}
+        </span>
+      </div>
+      <button v-if="sipStatus === 'error'" @click="retryConnect" class="text-xs text-blue-500 hover:underline">
+        {{ $t('COMPONENTS.CODE.RETRY') || 'Retry' }}
+      </button>
+    </div>
+
+    <!-- Active Sessions -->
     <div
       v-for="session in sessions"
       :key="session.id"
@@ -26,7 +50,7 @@
       <!-- Content -->
       <div class="p-4 flex flex-col items-center justify-center gap-4">
 
-        <!-- Timer (placeholder) -->
+        <!-- Timer -->
         <div v-if="session.status === 'active'" class="text-2xl font-mono text-slate-800 dark:text-slate-100">
            {{ formatTime(session.startTime) }}
         </div>
@@ -53,15 +77,6 @@
 
           <!-- Active/Outbound Call Actions -->
           <template v-else>
-            <!-- Mute (Placeholder) -->
-             <!--
-            <button
-              class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-            >
-              <span class="i-lucide-mic-off w-5 h-5"></span>
-            </button>
-            -->
-
             <button
               @click="hangup(session.id)"
               class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white hover:bg-red-600 transition-colors shadow-lg"
@@ -90,10 +105,22 @@ export default {
   computed: {
     ...mapGetters({
       sessions: 'sip/getSIPSessions',
+      sipStatus: 'sip/getSIPStatus',
+      sipError: 'sip/getSIPError',
     }),
     hasSessions() {
       return this.sessions && this.sessions.length > 0;
     },
+    showStatus() {
+       // Show status if there are active sessions OR if status is not 'disconnected' (meaning we are trying to use it)
+       // Or always show if configured?
+       // Let's show if connected or error or connecting.
+       return this.sipStatus !== 'disconnected' || this.hasSessions;
+    },
+    sipStatusLabel() {
+       if (this.sipStatus === 'error') return this.sipError || 'Error';
+       return this.sipStatus.charAt(0).toUpperCase() + this.sipStatus.slice(1);
+    }
   },
   mounted() {
     this.interval = setInterval(() => {
@@ -109,6 +136,9 @@ export default {
     },
     hangup(id) {
       sipClient.terminateSession(id);
+    },
+    retryConnect() {
+       sipClient.connect();
     },
     formatTime(startTime) {
       if (!startTime) return '00:00';

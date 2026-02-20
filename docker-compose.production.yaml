@@ -43,7 +43,22 @@ services:
       - NODE_ENV=production
       - SIP_WS_PORT=8080
       - SIP_UDP_PORT=5060
+      - RTPENGINE_HOST=rtpengine
+      - RTPENGINE_PORT=2223
     command: ['node', 'sip-gateway/index.js']
+    restart: always
+    depends_on:
+      - rtpengine
+
+  rtpengine:
+    image: dforsber/rtpengine:latest
+    command: rtpengine --interface=internal/0.0.0.0 --interface=external/0.0.0.0 --listen-ng=2223 --pidfile=/run/rtpengine.pid --foreground --no-fallback --log-level=6
+    environment:
+      - TABLE=0
+    expose:
+      - "2223/udp"
+    ports:
+      - "20000-20050:20000-20050/udp" # RTP Port Range (Small range for testing, expand for prod)
     restart: always
 
   postgres:

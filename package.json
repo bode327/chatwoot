@@ -87,6 +87,8 @@
     "opus-recorder": "^8.0.5",
     "pinia": "^3.0.4",
     "qrcode": "^1.5.4",
+    "rtpengine-client": "^0.4.12",
+    "sdp-transform": "^3.0.0",
     "semver": "7.6.3",
     "sip.js": "^0.21.2",
     "snakecase-keys": "^8.0.1",

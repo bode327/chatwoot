@@ -44,12 +44,37 @@ The WebSocket server listens on `ws://localhost:8080/sip` by default.
 
 1.  In Chatwoot, configure your Inbox.
 2.  Set the **Gateway URL** (or WebSocket URL) to `ws://localhost:8080/sip` (or your public IP).
-    - Or set `SIP_GATEWAY_URL=ws://your-domain/sip` in environment variables to set a global default.
+    - Or set `SIP_GATEWAY_URL=wss://your-domain.com/sip` in environment variables to set a global default.
 3.  Set the **Domain** to your SIP Provider's domain.
 4.  Set **Username** and **Password** as usual.
 
 Chatwoot will now connect to this Gateway via WebSocket, and the Gateway will proxy SIP messages to the Provider via UDP.
 
-**Conflict Note:** This gateway runs on a separate port (8080) and uses the path `/sip` to avoid conflicts with Chatwoot's main WebSocket service (ActionCable) which uses `/cable`. If running behind Nginx, configure a location block to proxy `/sip` to port 8080.
+### Enabling WSS (Secure WebSocket)
+
+Modern browsers require Secure WebSockets (`wss://`) when the page is loaded via HTTPS. To enable WSS:
+
+1.  **Do not** modify the gateway code to handle certificates directly (unless running standalone).
+2.  **Use your Reverse Proxy (Nginx, Traefik, etc.)** to terminate SSL/TLS and proxy the connection to the gateway's internal port (8080).
+
+#### Nginx Example
+
+Add this location block to your Chatwoot Nginx configuration:
+
+```nginx
+location /sip {
+  proxy_pass http://localhost:8080;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+  proxy_set_header Host $host;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+Then configure `SIP_GATEWAY_URL` as `wss://your-chatwoot-domain.com/sip`.
+
+**Conflict Note:** This gateway runs on a separate port (8080) and uses the path `/sip` to avoid conflicts with Chatwoot's main WebSocket service (ActionCable) which uses `/cable`.
 
 **Media Note:** This gateway handles SIP Signaling only. For audio (RTP) to work with generic providers, you typically need a Media Relay (like RTPEngine or RTPProxy) to handle the conversion between WebRTC (DTLS-SRTP) and SIP (RTP). This gateway implementation assumes the provider supports ICE/STUN or that a media relay is configured externally.

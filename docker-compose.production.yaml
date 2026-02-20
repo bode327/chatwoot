@@ -51,8 +51,8 @@ services:
       - rtpengine
 
   rtpengine:
-    image: dforsber/rtpengine:latest
-    command: rtpengine --interface=internal/0.0.0.0 --interface=external/0.0.0.0 --listen-ng=2223 --pidfile=/run/rtpengine.pid --foreground --no-fallback --log-level=6
+    image: fonoster/rtpengine:0.3.17
+    command: rtpengine --interface=0.0.0.0 --listen-ng=2223 --pidfile=/run/rtpengine.pid --foreground --no-fallback --log-level=6
     environment:
       - TABLE=0
     expose:

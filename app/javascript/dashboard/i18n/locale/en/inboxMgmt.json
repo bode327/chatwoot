@@ -363,13 +363,14 @@
           "TITLE": "SIP Voice Channel",
           "DESC": "Integrate SIP Voice and start supporting your customers via phone calls.",
           "DOMAIN": {
-            "LABEL": "SIP Domain / Proxy",
+            "LABEL": "SIP Domain (Realm)",
             "PLACEHOLDER": "e.g. sip.provider.com",
             "REQUIRED": "Domain is required"
           },
           "WEBSOCKET_URL": {
-            "LABEL": "WebSocket URL (WSS)",
-            "PLACEHOLDER": "e.g. wss://sip.provider.com:7443"
+            "LABEL": "WebSocket URL (WSS/Proxy)",
+            "PLACEHOLDER": "e.g. wss://sip.provider.com:7443 or wss://sbc.mycompany.com",
+            "HELP": "This is the actual server connection. If your provider only supports UDP, point this to your SIP-to-WebRTC gateway (SBC)."
           },
           "USERNAME": {
             "LABEL": "Username",

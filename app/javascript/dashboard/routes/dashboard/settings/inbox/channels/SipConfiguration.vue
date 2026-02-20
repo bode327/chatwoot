@@ -180,7 +180,7 @@ async function handleSubmit() {
       v-model="state.websocketUrl"
       :label="t('INBOX_MGMT.ADD.VOICE.SIP.WEBSOCKET_URL.LABEL')"
       :placeholder="t('INBOX_MGMT.ADD.VOICE.SIP.WEBSOCKET_URL.PLACEHOLDER')"
-      message=""
+      :message="t('INBOX_MGMT.ADD.VOICE.SIP.WEBSOCKET_URL.HELP')"
       message-type="info"
     />
 

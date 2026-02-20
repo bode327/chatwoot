@@ -109,9 +109,11 @@ class SipClient {
     // Wait, SipConfiguration.vue saved 'websocket_url' (via updated component, not pushed to DB yet? No, DB stores JSON).
     // The previous plan updated SipConfiguration.vue to use `websocket_url` key in JSON.
     // Let's check keys in provider_config.
+    // If wssUrl is missing, check if global config provides a gateway URL.
     const wssUrl =
       this.inbox.provider_config.websocket_url ||
-      this.inbox.provider_config.gateway_url;
+      this.inbox.provider_config.gateway_url ||
+      window.chatwootConfig.SIP_GATEWAY_URL;
     const domain = this.inbox.provider_config.domain || server;
 
     if (!wssUrl || !domain) {

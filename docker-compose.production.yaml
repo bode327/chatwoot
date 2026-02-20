@@ -34,6 +34,18 @@ services:
     command: ['bundle', 'exec', 'sidekiq', '-C', 'config/sidekiq.yml']
     restart: always
 
+  sip-gateway:
+    <<: *base
+    ports:
+      - '127.0.0.1:8080:8080' # WebSocket Port
+      - '127.0.0.1:5060:5060/udp' # UDP Port for SIP
+    environment:
+      - NODE_ENV=production
+      - SIP_WS_PORT=8080
+      - SIP_UDP_PORT=5060
+    command: ['node', 'sip-gateway/index.js']
+    restart: always
+
   postgres:
     image: pgvector/pgvector:pg16
     restart: always

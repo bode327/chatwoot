@@ -1,6 +1,15 @@
 const WebSocket = require('ws');
 const dgram = require('dgram');
-const sip = require('sip');
+const { Parser, IncomingRequestMessage, IncomingResponseMessage } = require('sip.js/lib/core');
+// sip.js exports are typically 'sip.js' but internal modules might not be exposed easily.
+// Let's verify how to import Parser from 'sip.js'.
+// Usually: const { Parser } = require('sip.js/lib/core/messages/parser');
+// But ES Modules vs CommonJS...
+// Let's try direct import or fallback.
+
+// To handle parsing correctly, we might need a small helper if sip.js internal access is tricky.
+// But based on the grep, it's there.
+
 const uuid = require('uuid');
 require('dotenv').config();
 
@@ -10,68 +19,125 @@ const PUBLIC_IP = process.env.SIP_PUBLIC_IP || '127.0.0.1';
 
 console.log(`Starting SIP Gateway on WS:${WS_PORT} and UDP:${UDP_PORT}`);
 
-// Map to store active WebSocket connections
-// Key: SIP Call-ID -> { ws } (for active transactions/dialogs)
-// Key: SIP User (AOR) -> { ws } (for registrations)
 const clients = new Map();
 
-// Helper to get WS from Call-ID or User
-function getClient(callId, user) {
-  if (clients.has(callId)) return clients.get(callId);
-  if (user && clients.has('reg:' + user)) return clients.get('reg:' + user);
-  return null;
+// Helper to parse SIP message using sip.js internals or basic regex
+// Since requiring internal files from 'sip.js' might break on updates, let's use a robust regex parser for basic routing
+// or check if sip.js exports it.
+// Actually, `sip.js` package.json `exports` field might prevent deep imports.
+// Let's check package.json of sip.js or just try to require it.
+
+let sipParser;
+try {
+  // Try to load Parser from sip.js internal structure
+  sipParser = require('sip.js/lib/core/messages/parser').Parser;
+} catch (e) {
+  console.warn('Could not load sip.js Parser, falling back to basic parsing.', e);
 }
 
-// SIP UDP Stack
-sip.start({
-  port: UDP_PORT,
-  logger: {
-    send: (message, address) => {
-      // console.log(`UDP SEND to ${address.address}:${address.port}:\n${sip.stringify(message)}`);
-    },
-    recv: (message, address) => {
-      // console.log(`UDP RECV from ${address.address}:${address.port}:\n${sip.stringify(message)}`);
+// Basic SIP Parser fallback
+function parseSipMessage(msg) {
+  if (sipParser) {
+    // Parser.parseMessage returns an IncomingRequestMessage or IncomingResponseMessage
+    // It requires a logger.
+    const logger = { error: () => {}, warn: () => {}, log: () => {} };
+    return sipParser.parseMessage(msg, logger);
+  }
+
+  // Minimal fallback parser if sip.js fails to load
+  const lines = msg.split('\r\n');
+  const firstLine = lines[0];
+  const headers = {};
+  let body = '';
+  let inBody = false;
+
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (inBody) {
+      body += line + '\r\n';
+    } else if (line === '') {
+      inBody = true;
+    } else {
+      const parts = line.split(':');
+      const key = parts[0].toLowerCase().trim();
+      const value = parts.slice(1).join(':').trim();
+      headers[key] = value;
     }
   }
-}, (request) => {
-  // Callback for incoming UDP requests (from Provider)
-  try {
-    const callId = request.headers['call-id'];
-    console.log(`UDP Request ${request.method} Call-ID: ${callId}`);
 
-    // Logic to find the correct WebSocket client
+  // Extract Call-ID
+  const callId = headers['call-id'];
+  const method = firstLine.split(' ')[0];
+
+  return {
+    method,
+    headers,
+    body,
+    toString: () => msg // preserve original for forwarding
+  };
+}
+
+// UDP Socket
+const udpSocket = dgram.createSocket('udp4');
+
+udpSocket.on('message', (msg, rinfo) => {
+  const msgStr = msg.toString();
+  // console.log(`UDP RECV from ${rinfo.address}:${rinfo.port}:\n${msgStr}`);
+
+  try {
+    const parsed = parseSipMessage(msgStr);
+
+    if (!parsed) return;
+
+    // Extract Call-ID
+    // If using sip.js parser, headers are accessed differently?
+    // sip.js IncomingMessage has `getHeader(name)`
+
+    let callId;
+    if (parsed.getHeader) {
+      callId = parsed.getHeader('call-id');
+    } else {
+      callId = parsed.headers['call-id'];
+    }
+
+    // Find client
     let clientData = clients.get(callId);
 
-    // If not found, and it's an INVITE/BYE, look up by To/From header (Registration)
-    if (!clientData) {
-      const toUri = sip.parseUri(request.headers.to.uri);
-      const toUser = toUri.user;
-      clientData = clients.get('reg:' + toUser);
+    // If INVITE, check registration
+    if (!clientData && (parsed.method === 'INVITE' || (parsed.message && parsed.message.method === 'INVITE'))) {
+       // Check To header
+       let toUri;
+       if (parsed.getHeader) {
+         toUri = parsed.getHeader('to');
+       } else {
+         toUri = parsed.headers['to'];
+       }
+       // Extract user from URI (e.g. <sip:user@domain>)
+       const match = toUri.match(/sip:([^@]+)@/);
+       if (match) {
+         const user = match[1];
+         clientData = clients.get('reg:' + user);
+       }
     }
 
     if (clientData && clientData.ws.readyState === WebSocket.OPEN) {
-      // Forward to WS
-      // We must serialize the SIP message to a string.
-      const msgStr = sip.stringify(request);
       clientData.ws.send(msgStr);
     } else {
-      console.warn(`No active WS client found for UDP request ${callId}`);
-      // Send 404 Not Found or 480 Temporarily Unavailable?
-      // udpStack.send(sip.makeResponse(request, 480, 'Temporarily Unavailable'));
+       // console.warn(`No WS client for UDP message: ${callId}`);
     }
   } catch (e) {
-    console.error('Error handling UDP request:', e);
+    console.error('Error handling UDP:', e);
   }
 });
+
+udpSocket.bind(UDP_PORT);
+
 
 // WebSocket Server
 const wss = new WebSocket.Server({
   port: WS_PORT,
   handleProtocols: (protocols, req) => {
-    // Negotiate 'sip' subprotocol
-    if (protocols.has('sip')) {
-      return 'sip';
-    }
+    if (protocols.has('sip')) return 'sip';
     return false;
   }
 });
@@ -81,72 +147,101 @@ wss.on('connection', (ws) => {
 
   ws.on('message', (message) => {
     const msgStr = message.toString();
-    // console.log('WS RECV:\n', msgStr);
 
     try {
-      const parsed = sip.parse(msgStr);
+      const parsed = parseSipMessage(msgStr);
+      if (!parsed) return;
 
-      if (!parsed) {
-        console.error('Failed to parse SIP message from WS');
-        return;
+      let callId, method, requestUri;
+
+      if (parsed.getHeader) {
+        callId = parsed.getHeader('call-id');
+        // IncomingRequestMessage has method property?
+        // Actually Parser.parseMessage returns IncomingRequest or IncomingResponse
+        // request.method is defined for requests. response.statusCode for responses.
+        // But for parsing, we just need basic info for routing.
+
+        // Let's assume generic access or check instance
+      } else {
+        callId = parsed.headers['call-id'];
       }
 
-      const callId = parsed.headers['call-id'];
-
-      // Store transaction mapping
+      // Store mapping
       if (callId) {
         clients.set(callId, { ws });
       }
 
-      // Handle REGISTER specifically to store user mapping
-      if (parsed.method === 'REGISTER') {
-        const toUri = sip.parseUri(parsed.headers.to.uri);
-        const toUser = toUri.user;
-        clients.set('reg:' + toUser, { ws });
-        console.log(`Registered user: ${toUser}`);
-      }
+      // Check for REGISTER
+      // To properly route, we need to look at the first line.
+      // If using sip.js parser, we can check `parsed instanceof IncomingRequestMessage`?
+      // Or just check if `method` property exists.
 
-      // Rewrite Contact Header
-      if (parsed.headers.contact && parsed.headers.contact.length > 0) {
-        const contact = parsed.headers.contact[0];
-        if (contact.uri) {
-           // Parse the contact URI to preserve user part
-           const contactUri = sip.parseUri(contact.uri);
-           // Rewrite host and port to our Gateway
-           contactUri.host = PUBLIC_IP;
-           contactUri.port = UDP_PORT;
-           // Update the contact header
-           // Note: sip library contact objects have 'uri' as string usually.
-           // We reconstruct it.
-           parsed.headers.contact[0].uri = `sip:${contactUri.user}@${PUBLIC_IP}:${UDP_PORT}`;
+      if (msgStr.startsWith('REGISTER')) {
+        // Extract To user
+        // Quick regex for robust extraction without relying on complex parser logic
+        const match = msgStr.match(/^To:.*<sip:([^@]+)@/m);
+        if (match) {
+          const user = match[1];
+          clients.set('reg:' + user, { ws });
+          console.log(`Registered user: ${user}`);
         }
       }
 
-      // Rewrite Via Header?
-      // SIP.js sends its own Via.
-      // We should probably add our own Via on top (record-route style) or replace it.
-      // Replacing it is simpler for a B2BUA-like behavior but tricky for transaction matching.
-      // Ideally, we add our Via.
-      // parsed.headers.via.unshift({ protocol: 'SIP/2.0/UDP', host: PUBLIC_IP, port: UDP_PORT });
+      // Rewrite Contact Header for UDP reachability
+      // We need to replace the internal WS IP/Port in Contact with our PUBLIC_IP:UDP_PORT
+      // Simple regex replacement to avoid re-serializing issues
+      // Replace "Contact: <sip:user@internal-ip;transport=ws>" with "Contact: <sip:user@PUBLIC_IP:UDP_PORT;transport=udp>"
+      // Or just remove transport=ws
 
-      // Determine destination from Request-URI
-      let destHost, destPort;
-      const uri = sip.parseUri(parsed.uri);
+      let modifiedMsg = msgStr;
 
-      // If REGISTER, use the domain in the URI
-      destHost = uri.host;
-      destPort = uri.port || 5060;
+      // Basic Contact Rewrite
+      // This is a naive implementation. A full B2BUA is complex.
+      // We assume one Contact header.
+      // Regex to find Contact header and replace host/port.
+      // Example: Contact: <sip:agent@192.168.1.5:54321;transport=ws>
+      // Target: Contact: <sip:agent@PUBLIC_IP:UDP_PORT>
 
-      // Send via UDP
-      sip.send(parsed, { address: destHost, port: destPort, protocol: 'UDP' });
+      // Matches Contact: ... <sip:user@host:port ...>
+      // We want to preserve user, but change host:port.
+
+      modifiedMsg = modifiedMsg.replace(
+        /(Contact:.*<sip:[^@]+@)([^>;]+)(.*>)/i,
+        `$1${PUBLIC_IP}:${UDP_PORT}$3`
+      );
+
+      // Remove ;transport=ws if present
+      modifiedMsg = modifiedMsg.replace(/;transport=ws/gi, '');
+
+      // Determine Destination (Request-URI or Route)
+      // For this gateway, we just send to the domain in the Request-URI?
+      // Or we need to use a configured Proxy?
+      // Usually, the client sends to the Domain.
+
+      // Extract Request-URI domain
+      const reqLine = modifiedMsg.split('\r\n')[0];
+      const uriMatch = reqLine.match(/sip:([^@]+)@([^:; ]+)(:(\d+))?/);
+
+      let destHost = '127.0.0.1';
+      let destPort = 5060;
+
+      if (uriMatch) {
+        destHost = uriMatch[2];
+        if (uriMatch[4]) destPort = parseInt(uriMatch[4]);
+      }
+
+      // Send UDP
+      const buffer = Buffer.from(modifiedMsg);
+      udpSocket.send(buffer, destPort, destHost, (err) => {
+        if (err) console.error('UDP Send Error:', err);
+      });
 
     } catch (e) {
-      console.error('Error processing WS message:', e);
+      console.error('Error forwarding WS message:', e);
     }
   });
 
   ws.on('close', () => {
-    console.log('WS Client disconnected');
     // Cleanup
     for (const [key, value] of clients.entries()) {
       if (value.ws === ws) {

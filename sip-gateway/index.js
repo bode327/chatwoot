@@ -136,6 +136,7 @@ udpSocket.bind(UDP_PORT);
 // WebSocket Server
 const wss = new WebSocket.Server({
   port: WS_PORT,
+  path: '/sip',
   handleProtocols: (protocols, req) => {
     if (protocols.has('sip')) return 'sip';
     return false;

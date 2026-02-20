@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed, onMounted, defineComponent } from 'vue';
+import { reactive, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useVuelidate } from '@vuelidate/core';
@@ -48,17 +48,17 @@ onMounted(() => {
 const uiFlags = useMapGetter('inboxes/getUIFlags');
 
 const validationRules = computed(() => {
-   const rules = {
-      domain: { required },
-      username: { required },
-      password: { required },
-      phoneNumber: { required },
-   };
-   // If creating, validate phone number format
-   if (!isEditing.value) {
-      rules.phoneNumber = { required, isPhoneE164 };
-   }
-   return rules;
+  const rules = {
+    domain: { required },
+    username: { required },
+    password: { required },
+    phoneNumber: { required },
+  };
+  // If creating, validate phone number format
+  if (!isEditing.value) {
+    rules.phoneNumber = { required, isPhoneE164 };
+  }
+  return rules;
 });
 
 const v$ = useVuelidate(validationRules, state);
@@ -81,7 +81,8 @@ const formErrors = computed(() => ({
 }));
 
 const callbackURL = computed(() => {
-  const phone = state.phoneNumber || (props.inbox ? props.inbox.phone_number : '');
+  const phone =
+    state.phoneNumber || (props.inbox ? props.inbox.phone_number : '');
   if (!phone) return '';
   const digits = phone.replace(/\D/g, '');
   return `${window.location.origin}/webhooks/sip/${digits}`;
@@ -93,19 +94,10 @@ function getProviderConfig() {
     websocket_url: state.websocketUrl,
     username: state.username,
     password: state.password,
-    server: state.domain.startsWith('http') ? state.domain : `https://${state.domain}`,
+    server: state.domain.startsWith('http')
+      ? state.domain
+      : `https://${state.domain}`,
   };
-}
-
-async function handleSubmit() {
-  const isFormValid = await v$.value.$validate();
-  if (!isFormValid) return;
-
-  if (isEditing.value) {
-    await updateChannel();
-  } else {
-    await createChannel();
-  }
 }
 
 async function createChannel() {
@@ -134,17 +126,28 @@ async function createChannel() {
 async function updateChannel() {
   try {
     const payload = {
-       id: props.inbox.id,
-       formData: false,
-       channel: {
-          provider_config: getProviderConfig(),
-       },
+      id: props.inbox.id,
+      formData: false,
+      channel: {
+        provider_config: getProviderConfig(),
+      },
     };
 
     await store.dispatch('inboxes/updateInbox', payload);
     useAlert(t('INBOX_MGMT.EDIT.API.SUCCESS_MESSAGE'));
   } catch (error) {
-     useAlert(t('INBOX_MGMT.EDIT.API.ERROR_MESSAGE'));
+    useAlert(t('INBOX_MGMT.EDIT.API.ERROR_MESSAGE'));
+  }
+}
+
+async function handleSubmit() {
+  const isFormValid = await v$.value.$validate();
+  if (!isFormValid) return;
+
+  if (isEditing.value) {
+    await updateChannel();
+  } else {
+    await createChannel();
   }
 }
 </script>
@@ -212,7 +215,10 @@ async function updateChannel() {
       </div>
     </SettingsFieldSection>
 
-    <div v-if="!isEditing && state.phoneNumber" class="flex flex-col gap-1 mb-4">
+    <div
+      v-if="!isEditing && state.phoneNumber"
+      class="flex flex-col gap-1 mb-4"
+    >
       <label class="text-xs font-semibold text-n-slate-12">
         {{ t('INBOX_MGMT.ADD.VOICE.API_CALLBACK.TITLE') }}
       </label>
@@ -230,7 +236,11 @@ async function updateChannel() {
       <NextButton
         :is-loading="isEditing ? uiFlags.isUpdating : uiFlags.isCreating"
         :disabled="isSubmitDisabled"
-        :label="isEditing ? t('INBOX_MGMT.SETTINGS_POPUP.UPDATE') : t('INBOX_MGMT.ADD.VOICE.SUBMIT_BUTTON')"
+        :label="
+          isEditing
+            ? t('INBOX_MGMT.SETTINGS_POPUP.UPDATE')
+            : t('INBOX_MGMT.ADD.VOICE.SUBMIT_BUTTON')
+        "
         type="submit"
       />
     </div>

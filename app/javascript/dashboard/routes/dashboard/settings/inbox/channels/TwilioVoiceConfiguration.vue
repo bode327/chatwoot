@@ -137,9 +137,7 @@ async function createChannel() {
       v-model="state.apiKeySecret"
       type="password"
       :label="t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SECRET.LABEL')"
-      :placeholder="
-        t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SECRET.PLACEHOLDER')
-      "
+      :placeholder="t('INBOX_MGMT.ADD.VOICE.TWILIO.API_KEY_SECRET.PLACEHOLDER')"
       :message="formErrors.apiKeySecret"
       :message-type="formErrors.apiKeySecret ? 'error' : 'info'"
       @blur="v$.apiKeySecret?.$touch"

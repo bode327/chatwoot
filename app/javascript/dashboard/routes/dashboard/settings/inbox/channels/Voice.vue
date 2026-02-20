@@ -85,17 +85,12 @@ const headerContent = computed(() => {
     </div>
 
     <div v-else-if="showConfiguration">
-      <PageHeader
-        :header-title="headerTitle"
-        :header-content="headerContent"
-      />
+      <PageHeader :header-title="headerTitle" :header-content="headerContent" />
       <div class="px-6 py-5 border rounded-2xl border-n-weak">
         <TwilioVoiceConfiguration
           v-if="selectedProvider === PROVIDER_TYPES.TWILIO"
         />
-        <SipConfiguration
-          v-else-if="selectedProvider === PROVIDER_TYPES.SIP"
-        />
+        <SipConfiguration v-else-if="selectedProvider === PROVIDER_TYPES.SIP" />
       </div>
     </div>
   </div>

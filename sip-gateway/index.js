@@ -63,12 +63,12 @@ udpSocket.on('message', async (msg, rinfo) => {
     }
 
     if (clientData && clientData.ws.readyState === WebSocket.OPEN) {
-      const contentType = parsed.getHeader('content-type');
-      const hasSdp = parsed.body && contentType === 'application/sdp';
+      const hasSdp = parsed.body && parsed.body.includes('v=0');
 
       // 1. INBOUND INVITE (Provider -> Client)
       // We need to Offer this to rtpengine to convert RTP -> SRTP
       if (parsed.method === 'INVITE' && hasSdp) {
+        // console.log('Processing Inbound INVITE with SDP');
         const sdp = parsed.body;
         const fromTagMatch = parsed.getHeader('from').match(/tag=([^;]+)/);
         const fromTag = fromTagMatch ? fromTagMatch[1] : null;
@@ -205,11 +205,11 @@ wss.on('connection', (ws) => {
         `$1${PUBLIC_IP}:${UDP_PORT}$3`
       ).replace(/;transport=ws/gi, '');
 
-      const contentType = parsed.getHeader('content-type');
-      const hasSdp = parsed.body && contentType === 'application/sdp';
+      const hasSdp = parsed.body && parsed.body.includes('v=0');
 
       // 1. OUTBOUND INVITE (Client -> Provider)
       if (parsed.method === 'INVITE' && hasSdp) {
+        // console.log('Processing Outbound INVITE with SDP');
         const sdp = parsed.body;
         const fromTag = parsed.getHeader('from').match(/tag=([^;]+)/)[1];
 

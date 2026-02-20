@@ -116,9 +116,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-full p-8 pb-20 overflow-y-auto">
+  <div class="w-full h-full p-8 pb-32 overflow-y-auto">
     <div
-      class="grid max-w-3xl grid-cols-1 xs:grid-cols-2 mx-0 gap-6 sm:grid-cols-3"
+      class="grid max-w-3xl grid-cols-1 xs:grid-cols-2 mx-0 gap-6 sm:grid-cols-3 pb-8"
     >
       <ChannelItem
         v-for="channel in channelList"

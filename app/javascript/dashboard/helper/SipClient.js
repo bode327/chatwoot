@@ -210,6 +210,10 @@ class SipClient {
         await this.connect();
      }
 
+     if (!this.userAgent) {
+        throw new Error('SIP Client failed to initialize. Please check configuration.');
+     }
+
      const target = UserAgent.makeURI(`sip:${phoneNumber}@${this.inbox.provider_config.domain}`);
      if (!target) {
         throw new Error('Invalid Target URI');

@@ -52,7 +52,7 @@ services:
 
   rtpengine:
     image: fonoster/rtpengine:0.3.17
-    command: rtpengine --interface=eth0 --listen-ng=2223 --pidfile=/tmp/rtpengine.pid --foreground --no-fallback --log-level=6
+    command: rtpengine --interface=eth0 --listen-ng=2223 --pidfile=/tmp/rtpengine.pid --foreground --no-fallback --log-level=6 --port-min=20000 --port-max=20050
     environment:
       - TABLE=0
     expose:

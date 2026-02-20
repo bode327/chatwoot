@@ -70,32 +70,41 @@ udpSocket.on('message', async (msg, rinfo) => {
       // If 200 OK with SDP, we must answer rtpengine
       if (parsed.body && parsed.getHeader('content-type') === 'application/sdp') {
         const sdp = parsed.body;
-        // console.log('Processing UDP Response SDP with RTPEngine...');
 
-        const answerOpts = {
-          'sdp': sdp,
-          'call-id': callId,
-          'from-tag': parsed.getHeader('from').match(/tag=([^;]+)/)[1], // Extract tag
-          'to-tag': parsed.getHeader('to').match(/tag=([^;]+)/)[1],
-          'ICE': 'force', // Client (WebRTC) needs ICE
-          'transport-protocol': 'RTP/SAVPF', // Client expects SRTP
-          'dtls-fingerprint': 'SHA-256', // Ensure fingerprint is generated
-          'rtcp-mux': ['require'],
-          'flags': ['trust-address', 'replace-origin']
-        };
+        // Extract Tags
+        const fromTagMatch = parsed.getHeader('from').match(/tag=([^;]+)/);
+        const toTagMatch = parsed.getHeader('to').match(/tag=([^;]+)/);
+        const fromTag = fromTagMatch ? fromTagMatch[1] : null;
+        const toTag = toTagMatch ? toTagMatch[1] : null;
 
-        try {
-          const res = await rtpengine.answer(RTPENGINE_PORT, RTPENGINE_HOST, answerOpts);
-          if (res.result === 'ok') {
-            // Replace SDP in message
-            let modifiedMsg = msgStr.replace(sdp, res.sdp);
-            clientData.ws.send(modifiedMsg);
-            return;
-          } else {
-            console.error('RTPEngine Answer Failed:', res);
+        if (fromTag && toTag) {
+          const answerOpts = {
+            'sdp': sdp,
+            'call-id': callId,
+            'from-tag': fromTag,
+            'to-tag': toTag,
+            'ICE': 'force', // Client (WebRTC) needs ICE
+            'transport-protocol': 'RTP/SAVPF', // Client expects SRTP
+            'dtls-fingerprint': 'SHA-256', // Ensure fingerprint is generated
+            'rtcp-mux': ['require'],
+            'flags': ['trust-address', 'replace-origin']
+          };
+
+          try {
+            const res = await rtpengine.answer(RTPENGINE_PORT, RTPENGINE_HOST, answerOpts);
+            if (res.result === 'ok') {
+              // Replace SDP in message
+              let modifiedMsg = msgStr.replace(sdp, res.sdp);
+              clientData.ws.send(modifiedMsg);
+              return;
+            } else {
+              console.error('RTPEngine Answer Failed:', res);
+            }
+          } catch (err) {
+            console.error('RTPEngine Error:', err);
           }
-        } catch (err) {
-          console.error('RTPEngine Error:', err);
+        } else {
+          console.warn('Missing From/To tag in response with SDP');
         }
       }
 

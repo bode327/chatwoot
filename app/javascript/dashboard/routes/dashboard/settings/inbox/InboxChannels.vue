@@ -69,7 +69,7 @@ const items = computed(() => {
         :global-config="globalConfig"
         :items="items"
       />
-      <div class="col-span-6 overflow-hidden">
+      <div class="col-span-6 overflow-y-auto">
         <router-view />
       </div>
     </div>

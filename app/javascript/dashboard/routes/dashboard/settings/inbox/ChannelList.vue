@@ -116,7 +116,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-full p-8 overflow-auto">
+  <div class="w-full p-8 pb-20 overflow-y-auto">
     <div
       class="grid max-w-3xl grid-cols-1 xs:grid-cols-2 mx-0 gap-6 sm:grid-cols-3"
     >

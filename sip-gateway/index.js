@@ -63,12 +63,49 @@ udpSocket.on('message', async (msg, rinfo) => {
     }
 
     if (clientData && clientData.ws.readyState === WebSocket.OPEN) {
-      // Logic for RTP Bridging (Response from Provider)
-      // We assume the Client initiated the call (INVITE via WS).
-      // So this UDP message is likely 180 Ringing or 200 OK.
+      const contentType = parsed.getHeader('content-type');
+      const hasSdp = parsed.body && contentType === 'application/sdp';
 
-      // If 200 OK with SDP, we must answer rtpengine
-      if (parsed.body && parsed.getHeader('content-type') === 'application/sdp') {
+      // 1. INBOUND INVITE (Provider -> Client)
+      // We need to Offer this to rtpengine to convert RTP -> SRTP
+      if (parsed.method === 'INVITE' && hasSdp) {
+        const sdp = parsed.body;
+        const fromTagMatch = parsed.getHeader('from').match(/tag=([^;]+)/);
+        const fromTag = fromTagMatch ? fromTagMatch[1] : null;
+
+        const offerOpts = {
+          'sdp': sdp,
+          'call-id': callId,
+          'from-tag': fromTag,
+          'ICE': 'force', // Client (WebRTC) needs ICE
+          'transport-protocol': 'RTP/SAVPF', // Client expects SRTP
+          'DTLS': 'actpass', // We act as server-side (active/passive negotiation)
+          'SDES': 'off',
+          'rtcp-mux': ['require'],
+          'flags': ['trust-address', 'replace-origin', 'generate-mid']
+        };
+
+        try {
+          const res = await rtpengine.offer(RTPENGINE_PORT, RTPENGINE_HOST, offerOpts);
+          if (res.result === 'ok') {
+            const modifiedMsg = msgStr.replace(sdp, res.sdp);
+            clientData.ws.send(modifiedMsg);
+            return;
+          } else {
+            console.error('RTPEngine Inbound Offer Failed:', res);
+          }
+        } catch (err) {
+          console.error('RTPEngine Inbound Offer Error:', err);
+        }
+      }
+
+      // 2. OUTBOUND RESPONSE (Provider -> Client) e.g. 200 OK for Outbound Call
+      // We need to Answer rtpengine to convert RTP -> SRTP
+      // Check if it's a response (status code exists in first line usually, but parser might not expose it easily if generic)
+      // sip.js parser returns IncomingResponseMessage if response.
+      // We can check if 'CSeq' method is INVITE and it is a 200 OK.
+      // Or just check if it has SDP and is NOT an INVITE request.
+      else if (hasSdp) {
         const sdp = parsed.body;
 
         // Extract Tags
@@ -94,18 +131,15 @@ udpSocket.on('message', async (msg, rinfo) => {
           try {
             const res = await rtpengine.answer(RTPENGINE_PORT, RTPENGINE_HOST, answerOpts);
             if (res.result === 'ok') {
-              // Replace SDP in message
               let modifiedMsg = msgStr.replace(sdp, res.sdp);
               clientData.ws.send(modifiedMsg);
               return;
             } else {
-              console.error('RTPEngine Answer Failed:', res);
+              console.error('RTPEngine Outbound Answer Failed:', res);
             }
           } catch (err) {
-            console.error('RTPEngine Error:', err);
+            console.error('RTPEngine Outbound Answer Error:', err);
           }
-        } else {
-          console.warn('Missing From/To tag in response with SDP');
         }
       }
 
@@ -171,20 +205,23 @@ wss.on('connection', (ws) => {
         `$1${PUBLIC_IP}:${UDP_PORT}$3`
       ).replace(/;transport=ws/gi, '');
 
-      // Check for INVITE with SDP (Offer)
-      if (parsed.method === 'INVITE' && parsed.body && parsed.getHeader('content-type') === 'application/sdp') {
+      const contentType = parsed.getHeader('content-type');
+      const hasSdp = parsed.body && contentType === 'application/sdp';
+
+      // 1. OUTBOUND INVITE (Client -> Provider)
+      if (parsed.method === 'INVITE' && hasSdp) {
         const sdp = parsed.body;
-        // console.log('Processing WS INVITE SDP with RTPEngine...');
+        const fromTag = parsed.getHeader('from').match(/tag=([^;]+)/)[1];
 
         const offerOpts = {
           'sdp': sdp,
           'call-id': callId,
-          'from-tag': parsed.getHeader('from').match(/tag=([^;]+)/)[1],
+          'from-tag': fromTag,
           'ICE': 'remove', // Provider (UDP) hates ICE usually
           'transport-protocol': 'RTP/AVP', // Provider expects plain RTP
           'DTLS': 'off',
           'SDES': 'off',
-          'rtcp-mux': ['demux'], // Provider might need demux
+          'rtcp-mux': ['demux'],
           'flags': ['trust-address', 'replace-origin']
         };
 
@@ -193,11 +230,47 @@ wss.on('connection', (ws) => {
           if (res.result === 'ok') {
             modifiedMsg = modifiedMsg.replace(sdp, res.sdp);
           } else {
-            console.error('RTPEngine Offer Failed:', res);
+            console.error('RTPEngine Outbound Offer Failed:', res);
           }
         } catch (err) {
-          console.error('RTPEngine Error:', err);
+          console.error('RTPEngine Outbound Offer Error:', err);
         }
+      }
+      // 2. INBOUND RESPONSE (Client -> Provider) e.g. 200 OK for Inbound Call
+      else if (hasSdp) {
+         // This is likely a 200 OK answering an Inbound INVITE
+         // We need to Answer rtpengine to convert SRTP -> RTP
+         const sdp = parsed.body;
+         const fromTagMatch = parsed.getHeader('from').match(/tag=([^;]+)/);
+         const toTagMatch = parsed.getHeader('to').match(/tag=([^;]+)/);
+         const fromTag = fromTagMatch ? fromTagMatch[1] : null;
+         const toTag = toTagMatch ? toTagMatch[1] : null;
+
+         if (fromTag && toTag) {
+            const answerOpts = {
+              'sdp': sdp,
+              'call-id': callId,
+              'from-tag': fromTag,
+              'to-tag': toTag,
+              'ICE': 'remove', // Provider needs Plain RTP
+              'transport-protocol': 'RTP/AVP',
+              'DTLS': 'off',
+              'SDES': 'off',
+              'rtcp-mux': ['demux'],
+              'flags': ['trust-address', 'replace-origin']
+            };
+
+            try {
+              const res = await rtpengine.answer(RTPENGINE_PORT, RTPENGINE_HOST, answerOpts);
+              if (res.result === 'ok') {
+                modifiedMsg = modifiedMsg.replace(sdp, res.sdp);
+              } else {
+                console.error('RTPEngine Inbound Answer Failed:', res);
+              }
+            } catch (err) {
+              console.error('RTPEngine Inbound Answer Error:', err);
+            }
+         }
       }
 
       // Cleanup on BYE

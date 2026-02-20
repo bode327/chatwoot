@@ -76,12 +76,12 @@ udpSocket.on('message', async (msg, rinfo) => {
           'sdp': sdp,
           'call-id': callId,
           'from-tag': parsed.getHeader('from').match(/tag=([^;]+)/)[1], // Extract tag
-          // 'to-tag': parsed.getHeader('to').match(/tag=([^;]+)/)[1],
+          'to-tag': parsed.getHeader('to').match(/tag=([^;]+)/)[1],
           'ICE': 'force', // Client (WebRTC) needs ICE
           'transport-protocol': 'RTP/SAVPF', // Client expects SRTP
           'dtls-fingerprint': 'SHA-256', // Ensure fingerprint is generated
           'rtcp-mux': ['require'],
-          'flags': ['trust-address', 'replace-origin', 'replace-session-connection']
+          'flags': ['trust-address', 'replace-origin']
         };
 
         try {
@@ -173,7 +173,7 @@ wss.on('connection', (ws) => {
           'ICE': 'remove', // Provider (UDP) hates ICE usually
           'transport-protocol': 'RTP/AVP', // Provider expects plain RTP
           'rtcp-mux': ['demux'], // Provider might need demux
-          'flags': ['trust-address', 'replace-origin', 'replace-session-connection']
+          'flags': ['trust-address', 'replace-origin']
         };
 
         try {

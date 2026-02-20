@@ -60,10 +60,15 @@ export default {
         i => i.channel_type === 'Channel::Voice' && i.provider === 'sip'
       );
       if (sipInbox) {
-        sipClient.configure(sipInbox);
-        sipClient.connect();
+        // If provider_config is missing (e.g. not loaded yet), don't connect.
+        if (sipInbox.provider_config) {
+          sipClient.configure(sipInbox);
+          sipClient.connect();
+        } else {
+           console.debug('SIP: Inbox found, but missing provider_config', sipInbox);
+        }
       }
-    });
+    }, { immediate: true });
 
     return {
       uiSettings,

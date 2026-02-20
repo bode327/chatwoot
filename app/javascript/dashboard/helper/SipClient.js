@@ -73,7 +73,10 @@ class SipClient {
      this.leaderId = this.myId;
      this.store?.dispatch('sip/setLeader', true);
      this.channel.postMessage({ type: 'HEARTBEAT', id: this.myId });
-     this.connect();
+
+     if (this.inbox && this.inbox.provider_config) {
+        this.connect();
+     }
   }
 
   yieldLeadership() {
@@ -92,7 +95,10 @@ class SipClient {
 
   async connect() {
     if (!this.inbox || !this.inbox.provider_config) {
-      console.warn('SIP: No configuration available');
+      // Don't warn if we just haven't been configured yet (common on load)
+      if (this.inbox) {
+         console.warn('SIP: Configuration incomplete', this.inbox);
+      }
       return;
     }
 

@@ -9,12 +9,12 @@ const WS_PORT = process.env.SIP_WS_PORT || 8080;
 const UDP_PORT = process.env.SIP_UDP_PORT || 5060;
 const PUBLIC_IP = process.env.SIP_PUBLIC_IP || '127.0.0.1';
 const RTPENGINE_HOST = process.env.RTPENGINE_HOST || '127.0.0.1';
-const RTPENGINE_PORT = process.env.RTPENGINE_PORT || 2223;
+const RTPENGINE_PORT = parseInt(process.env.RTPENGINE_PORT || 2223, 10);
 
 console.log(`Starting SIP/Media Gateway on WS:${WS_PORT} and UDP:${UDP_PORT}`);
 console.log(`Using RTPEngine at ${RTPENGINE_HOST}:${RTPENGINE_PORT}`);
 
-const rtpengine = new RtpEngine({ host: RTPENGINE_HOST, port: RTPENGINE_PORT });
+const rtpengine = new RtpEngine(); // Client tracks remote in calls
 const clients = new Map();
 
 // Helper to parse SIP message
@@ -85,7 +85,7 @@ udpSocket.on('message', async (msg, rinfo) => {
         };
 
         try {
-          const res = await rtpengine.answer(answerOpts);
+          const res = await rtpengine.answer(RTPENGINE_PORT, RTPENGINE_HOST, answerOpts);
           if (res.result === 'ok') {
             // Replace SDP in message
             let modifiedMsg = msgStr.replace(sdp, res.sdp);
@@ -177,7 +177,7 @@ wss.on('connection', (ws) => {
         };
 
         try {
-          const res = await rtpengine.offer(offerOpts);
+          const res = await rtpengine.offer(RTPENGINE_PORT, RTPENGINE_HOST, offerOpts);
           if (res.result === 'ok') {
             modifiedMsg = modifiedMsg.replace(sdp, res.sdp);
           } else {
@@ -190,7 +190,8 @@ wss.on('connection', (ws) => {
 
       // Cleanup on BYE
       if (parsed.method === 'BYE') {
-        rtpengine.delete({ 'call-id': callId });
+        const fromTag = parsed.getHeader('from').match(/tag=([^;]+)/)[1];
+        rtpengine.delete(RTPENGINE_PORT, RTPENGINE_HOST, { 'call-id': callId, 'from-tag': fromTag });
         clients.delete(callId);
       }
 

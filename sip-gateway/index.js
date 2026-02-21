@@ -55,6 +55,29 @@ function removeTopVia(msg) {
   return lines.join('\r\n');
 }
 
+function updateContentLength(msg) {
+  const parts = msg.split('\r\n\r\n');
+  if (parts.length < 2) return msg; // No body
+
+  const headers = parts[0].split('\r\n');
+  const body = parts.slice(1).join('\r\n\r\n');
+  const newLen = Buffer.byteLength(body, 'utf8');
+
+  let clFound = false;
+  for (let i = 0; i < headers.length; i++) {
+    if (headers[i].toLowerCase().startsWith('content-length:')) {
+      headers[i] = `Content-Length: ${newLen}`;
+      clFound = true;
+      break;
+    }
+  }
+  if (!clFound) {
+    headers.push(`Content-Length: ${newLen}`);
+  }
+
+  return headers.join('\r\n') + '\r\n\r\n' + body;
+}
+
 // UDP Socket
 const udpSocket = dgram.createSocket('udp4');
 
@@ -131,7 +154,8 @@ udpSocket.on('message', async (msg, rinfo) => {
         try {
           const res = await rtpengine.offer(RTPENGINE_PORT, RTPENGINE_HOST, offerOpts);
           if (res.result === 'ok') {
-            const modifiedMsg = msgStr.replace(sdp, res.sdp);
+            let modifiedMsg = msgStr.replace(sdp, res.sdp);
+            modifiedMsg = updateContentLength(modifiedMsg);
             clientData.ws.send(modifiedMsg);
             return;
           } else {
@@ -175,6 +199,7 @@ udpSocket.on('message', async (msg, rinfo) => {
             const res = await rtpengine.answer(RTPENGINE_PORT, RTPENGINE_HOST, answerOpts);
             if (res.result === 'ok') {
               let modifiedMsg = msgStr.replace(sdp, res.sdp);
+              modifiedMsg = updateContentLength(modifiedMsg);
               clientData.ws.send(modifiedMsg);
               return;
             } else {
@@ -300,6 +325,7 @@ wss.on('connection', (ws) => {
           const res = await rtpengine.offer(RTPENGINE_PORT, RTPENGINE_HOST, offerOpts);
           if (res.result === 'ok') {
             modifiedMsg = modifiedMsg.replace(sdp, res.sdp);
+            modifiedMsg = updateContentLength(modifiedMsg);
           } else {
             console.error('RTPEngine Outbound Offer Failed:', res);
           }
@@ -335,6 +361,7 @@ wss.on('connection', (ws) => {
               const res = await rtpengine.answer(RTPENGINE_PORT, RTPENGINE_HOST, answerOpts);
               if (res.result === 'ok') {
                 modifiedMsg = modifiedMsg.replace(sdp, res.sdp);
+                modifiedMsg = updateContentLength(modifiedMsg);
               } else {
                 console.error('RTPEngine Inbound Answer Failed:', res);
               }
@@ -353,12 +380,14 @@ wss.on('connection', (ws) => {
 
       // Determine Destination
       const reqLine = modifiedMsg.split('\r\n')[0];
-      const uriMatch = reqLine.match(/sip:([^@]+)@([^:; ]+)(:(\d+))?/);
+      // Regex to handle sip:user@host and sip:host (e.g. REGISTER)
+      const uriMatch = reqLine.match(/sip:(([^@]+)@)?([^:; ]+)(:(\d+))?/);
       let destHost = '127.0.0.1';
       let destPort = 5060;
+
       if (uriMatch) {
-        destHost = uriMatch[2];
-        if (uriMatch[4]) destPort = parseInt(uriMatch[4]);
+        destHost = uriMatch[3]; // Host part
+        if (uriMatch[5]) destPort = parseInt(uriMatch[5]);
       }
 
       // Resolve DNS to check for loops

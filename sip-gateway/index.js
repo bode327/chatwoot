@@ -52,10 +52,10 @@ udpSocket.on('message', async (msg, rinfo) => {
     // Find client
     let clientData = clients.get(callId);
 
-    // Fallback for INVITE (Registrar lookup)
-    if (!clientData && (parsed.method === 'INVITE')) {
+    // Fallback for any request (INVITE, OPTIONS, BYE) - Registrar lookup
+    if (!clientData && parsed.method) {
        let toUri = parsed.getHeader('to');
-       const match = toUri.match(/sip:([^@]+)@/);
+       const match = toUri && toUri.match(/sip:([^@]+)@/);
        if (match) {
          const user = match[1];
          clientData = clients.get('reg:' + user);
@@ -79,7 +79,7 @@ udpSocket.on('message', async (msg, rinfo) => {
           'from-tag': fromTag,
           'ICE': 'force', // Client (WebRTC) needs ICE
           'transport-protocol': 'RTP/SAVPF', // Client expects SRTP
-          'DTLS': 'actpass', // We act as server-side (active/passive negotiation)
+          'DTLS': 'passive', // We act as server-side (passive wait for browser)
           'SDES': 'off',
           'rtcp-mux': ['require'],
           'flags': ['trust-address', 'replace-origin', 'generate-mid']

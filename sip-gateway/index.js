@@ -81,6 +81,7 @@ udpSocket.on('message', async (msg, rinfo) => {
           'transport-protocol': 'RTP/SAVPF', // Client expects SRTP
           'DTLS': 'passive', // We act as server-side (passive wait for browser)
           'SDES': 'off',
+          'codec-strip': ['opus'], // Force G.711 to avoid transcoding issues
           'rtcp-mux': ['require'],
           'flags': ['trust-address', 'replace-origin', 'generate-mid']
         };
@@ -124,6 +125,7 @@ udpSocket.on('message', async (msg, rinfo) => {
             'transport-protocol': 'RTP/SAVPF', // Client expects SRTP
           'DTLS': 'passive', // Wait for client handshake
           'SDES': 'off',
+          'codec-strip': ['opus'], // Force G.711 to avoid transcoding issues
             'rtcp-mux': ['require'],
           'flags': ['trust-address', 'replace-origin', 'generate-mid']
           };
@@ -221,6 +223,7 @@ wss.on('connection', (ws) => {
           'transport-protocol': 'RTP/AVP', // Provider expects plain RTP
           'DTLS': 'off',
           'SDES': 'off',
+          'codec-strip': ['opus'], // Force G.711
           'rtcp-mux': ['demux'],
           'flags': ['trust-address', 'replace-origin']
         };
@@ -256,6 +259,7 @@ wss.on('connection', (ws) => {
               'transport-protocol': 'RTP/AVP',
               'DTLS': 'off',
               'SDES': 'off',
+              'codec-strip': ['opus'], // Force G.711
               'rtcp-mux': ['demux'],
               'flags': ['trust-address', 'replace-origin']
             };

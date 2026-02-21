@@ -1,5 +1,6 @@
 const WebSocket = require('ws');
 const dgram = require('dgram');
+const dns = require('dns');
 const { Parser } = require('sip.js/lib/core/messages/parser');
 const RtpEngine = require('rtpengine-client').Client;
 const sdpTransform = require('sdp-transform');
@@ -360,9 +361,23 @@ wss.on('connection', (ws) => {
         if (uriMatch[4]) destPort = parseInt(uriMatch[4]);
       }
 
-      const buffer = Buffer.from(modifiedMsg);
-      udpSocket.send(buffer, destPort, destHost, (err) => {
-        if (err) console.error('UDP Send Error:', err);
+      // Resolve DNS to check for loops
+      dns.lookup(destHost, (err, address) => {
+        if (err) {
+          console.error(`DNS Error resolving ${destHost}:`, err);
+          return;
+        }
+
+        if (address === PUBLIC_IP || address === '127.0.0.1') {
+          console.error(`Routing Loop Detected! Destination ${destHost} resolves to Gateway IP (${address}).`);
+          console.error('Please configure the Inbox "Domain" to the Provider\'s actual IP or a different domain.');
+          return;
+        }
+
+        const buffer = Buffer.from(modifiedMsg);
+        udpSocket.send(buffer, destPort, destHost, (err) => {
+          if (err) console.error('UDP Send Error:', err);
+        });
       });
 
     } catch (e) {

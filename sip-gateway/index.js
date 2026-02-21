@@ -47,7 +47,8 @@ function removeTopVia(msg) {
   const lines = msg.split('\r\n');
   // Find first Via and remove it
   for (let i = 1; i < lines.length; i++) {
-    if (lines[i].toLowerCase().startsWith('via:')) {
+    const line = lines[i].toLowerCase();
+    if (line.startsWith('via:') || line.startsWith('v:')) {
       lines.splice(i, 1);
       break;
     }

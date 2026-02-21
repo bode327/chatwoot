@@ -398,9 +398,10 @@ wss.on('connection', (ws) => {
           return;
         }
 
-        if (address === PUBLIC_IP || address === '127.0.0.1') {
-          console.error(`Routing Loop Detected! Destination ${destHost} resolves to Gateway IP (${address}).`);
-          console.error('Please configure the Inbox "Domain" to the Provider\'s actual IP or a different domain.');
+        // Only block if IP matches AND Port matches (UDP_PORT 5060)
+        if ((address === PUBLIC_IP || address === '127.0.0.1') && destPort === UDP_PORT) {
+          console.error(`Routing Loop Detected! Destination ${destHost}:${destPort} resolves to Gateway IP (${address}:${UDP_PORT}).`);
+          console.error('Please configure the Inbox "Domain" to the Provider\'s actual IP or a different domain/port.');
           return;
         }
 

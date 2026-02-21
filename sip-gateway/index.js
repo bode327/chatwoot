@@ -30,17 +30,59 @@ function parseSipMessage(msg) {
     const logger = { error: () => {}, warn: () => {}, log: () => {} };
     return sipParser.parseMessage(msg, logger);
   }
-  return null; // Simplified parser omitted for brevity in B2BUA mode
+  return null;
+}
+
+function addVia(msg, transport, host, port) {
+  const branch = 'z9hG4bK' + Math.floor(Math.random() * 10000000);
+  const via = `Via: SIP/2.0/${transport} ${host}:${port};branch=${branch};rport\r\n`;
+  // Insert before first header or after start line
+  const lines = msg.split('\r\n');
+  lines.splice(1, 0, via.trim());
+  return lines.join('\r\n');
+}
+
+function removeTopVia(msg) {
+  const lines = msg.split('\r\n');
+  // Find first Via and remove it
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i].toLowerCase().startsWith('via:')) {
+      lines.splice(i, 1);
+      break;
+    }
+  }
+  return lines.join('\r\n');
 }
 
 // UDP Socket
 const udpSocket = dgram.createSocket('udp4');
 
 udpSocket.on('message', async (msg, rinfo) => {
-  const msgStr = msg.toString();
+  let msgStr = msg.toString();
   try {
     const parsed = parseSipMessage(msgStr);
     if (!parsed) return;
+
+    // Check if Response (Status Code)
+    // sip.js parser puts status code in 'statusCode' property for Response
+    // or method for Request.
+    // We can just check the first line.
+    const firstLine = msgStr.split('\r\n')[0];
+    const isResponse = firstLine.startsWith('SIP/2.0 ');
+
+    if (isResponse) {
+        // Remove our Via (added during Outbound Request)
+        msgStr = removeTopVia(msgStr);
+    } else {
+        // Inbound Request (Provider -> Client)
+        // Add Via for WS leg
+        // We use PUBLIC_IP for now, but really it's the internal WS server.
+        // Client needs to send back to us.
+        // The Client is connected via WS. It sends over the socket.
+        // The Via tells the Client where the response *should* go, but WS is persistent.
+        // However, correct SIP semantics help.
+        msgStr = addVia(msgStr, 'WSS', PUBLIC_IP, WS_PORT); // Or internal IP? Client sees what?
+    }
 
     let callId;
     if (parsed.getHeader) {
@@ -204,6 +246,34 @@ wss.on('connection', (ws) => {
         /(Contact:.*<sip:[^@]+@)([^>;]+)(.*>)/i,
         `$1${PUBLIC_IP}:${UDP_PORT}$3`
       ).replace(/;transport=ws/gi, '');
+
+      // Add Via for Outbound Request (WS -> UDP)
+      const firstLine = modifiedMsg.split('\r\n')[0];
+      const isResponse = firstLine.startsWith('SIP/2.0 ');
+
+      if (!isResponse) {
+         modifiedMsg = addVia(modifiedMsg, 'UDP', PUBLIC_IP, UDP_PORT);
+      } else {
+         // Outbound Response (Client -> Provider)
+         // We don't remove Via here because Client added its own Via.
+         // Provider needs to see Client's Via? No, Client's Via points to Client.
+         // Gateway forwards. Provider receives from Gateway.
+         // If we added Via on Inbound Request, Client puts it in Response.
+         // So we should remove *our* Via that Client echoed back?
+         // Wait, Client sends response to Inbound INVITE.
+         // Inbound INVITE had Gateway Via (added by us).
+         // Client generates response. Copies Vias.
+         // So response has: Gateway Via, Provider Via.
+         // We send to Provider. Provider expects its own Via at top?
+         // No, response Vias preserve path. Top is Gateway.
+         // Provider receives response. Checks top Via. It matches Gateway?
+         // No, top Via is the *destination* of the response hop-by-hop.
+         // Actually, Response processing: Server strips top Via if it matches self.
+         // Client sends response. Top Via is Gateway.
+         // Gateway receives. Strips Top Via (itself).
+         // Next Via is Provider. Gateway sends to Provider.
+         modifiedMsg = removeTopVia(modifiedMsg);
+      }
 
       const hasSdp = parsed.body && parsed.body.includes('v=0');
 

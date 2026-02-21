@@ -6,8 +6,8 @@ It enables Chatwoot to act as a **PBX/Media Server**, allowing calls to generic 
 
 ## Architecture
 
-- **Signaling:** `sip-gateway` (Node.js) bridges SIP over WebSocket (Secure) to SIP over UDP.
-- **Media:** `rtpengine` (Docker service) bridges WebRTC Media (DTLS-SRTP, ICE) to standard RTP (AVP).
+- **Signaling:** `sip-gateway` (Node.js) bridges SIP over WebSocket (Secure) to SIP over UDP. It acts as a B2BUA (Back-to-Back User Agent) to handle transaction routing.
+- **Media:** `rtpengine` (Docker service) bridges WebRTC Media (DTLS-SRTP, ICE) to standard RTP (AVP/G.711).
 
 ## Prerequisites
 
@@ -47,7 +47,7 @@ It is recommended to run this via `docker-compose` or `Procfile` as configured i
 1.  In Chatwoot, configure your Inbox.
 2.  Set the **Gateway URL** (or WebSocket URL) to `ws://localhost:8080/sip` (or your public IP/Domain).
     - Or set `SIP_GATEWAY_URL=wss://your-domain.com/sip` in environment variables to set a global default.
-3.  Set the **Domain** to your SIP Provider's domain.
+3.  Set the **Domain** to your SIP Provider's domain (e.g. `sip.provider.com`). **Do not** set this to your Chatwoot/Gateway domain, or you will cause a routing loop.
 4.  Set **Username** and **Password** as usual.
 
 ### Enabling WSS (Secure WebSocket)
@@ -63,6 +63,9 @@ location /sip {
 }
 ```
 
-### Media Handling
+### Media & Network Tuning
 
-The gateway automatically uses `rtpengine` to transcode media. No extra configuration is needed on the client side. Ensure your Docker host exposes the RTP port range (default `20000-20050`) via UDP.
+The gateway automatically uses `rtpengine` to transcode media.
+-   Ensure your Docker host exposes the RTP port range (default `20000-20050`) via UDP.
+-   **Host Mode:** For best performance and to avoid NAT issues, consider running `rtpengine` with `network_mode: host` in `docker-compose.production.yaml`.
+-   **Codecs:** The gateway forces G.711 (PCMA/PCMU) for maximum compatibility.

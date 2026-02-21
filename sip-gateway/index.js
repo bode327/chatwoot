@@ -392,7 +392,7 @@ wss.on('connection', (ws) => {
       }
 
       // Resolve DNS to check for loops
-      dns.lookup(destHost, (err, address) => {
+      dns.lookup(destHost, { family: 4 }, (err, address) => {
         if (err) {
           console.error(`DNS Error resolving ${destHost}:`, err);
           return;

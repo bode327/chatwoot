@@ -38,9 +38,8 @@ properties:
     type: integer
     description: Version number of the audit log entry
   comment:
-    type:
-      - string
-      - 'null'
+    type: string
+    nullable: true
     description: Optional comment associated with the audit log entry
   request_uuid:
     type: string
@@ -49,7 +48,6 @@ properties:
     type: integer
     description: Unix timestamp when the audit log entry was created
   remote_address:
-    type:
-      - string
-      - 'null'
+    type: string
+    nullable: true
     description: IP address from which the action was performed

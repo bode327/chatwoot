@@ -31,10 +31,9 @@ properties:
     type: string
     description: Status of the message
   source_id:
-    type:
-      - string
-      - 'null'
+    type: string
     description: Source ID of the message
+    nullable: true
   content_type:
     type: string
     description: Type of the content
@@ -42,15 +41,13 @@ properties:
     type: object
     description: Attributes of the content
   sender_type:
-    type:
-      - string
-      - 'null'
+    type: string
     description: Type of the sender
+    nullable: true
   sender_id:
-    type:
-      - integer
-      - 'null'
+    type: integer
     description: ID of the sender
+    nullable: true
   external_source_ids:
     type: object
     description: External source IDs
@@ -58,10 +55,9 @@ properties:
     type: object
     description: Additional attributes of the message
   processed_message_content:
-    type:
-      - string
-      - 'null'
+    type: string
     description: Processed message content
+    nullable: true
   sentiment:
     type: object
     description: Sentiment analysis of the message
@@ -70,10 +66,9 @@ properties:
     description: Conversation details
     properties:
       assignee_id:
-        type:
-          - integer
-          - 'null'
+        type: integer
         description: ID of the assignee
+        nullable: true
       unread_count:
         type: integer
         description: Count of unread messages

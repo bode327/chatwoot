@@ -1,5 +1,4 @@
 <script setup>
-import { vOnClickOutside } from '@vueuse/components';
 import Button from 'dashboard/components-next/button/Button.vue';
 
 defineProps({
@@ -29,11 +28,7 @@ const handleButtonClick = () => {
             {{ headerTitle }}
           </span>
           <div
-            v-on-click-outside="[
-              () => emit('close'),
-              // This will prevent closing the modal when the editor Create link popup is open
-              { ignore: ['dialog.ProseMirror-prompt-backdrop'] },
-            ]"
+            v-on-clickaway="() => emit('close')"
             class="relative group/campaign-button"
           >
             <Button

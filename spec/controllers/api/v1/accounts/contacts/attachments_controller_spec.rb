@@ -35,8 +35,8 @@ RSpec.describe 'Api::V1::Accounts::Contacts::AttachmentsController', type: :requ
             as: :json
 
         expect(response).to have_http_status(:success)
-        expect(JSON.parse(response.body)['payload'].size).to eq(1)
-        expect(JSON.parse(response.body)['payload'].first['message_id']).to eq(message.id)
+        expect(response.parsed_body['payload'].size).to eq(1)
+        expect(response.parsed_body['payload'].first['message_id']).to eq(message.id)
       end
 
       it 'returns attachments filtered by file_type' do
@@ -46,7 +46,7 @@ RSpec.describe 'Api::V1::Accounts::Contacts::AttachmentsController', type: :requ
             as: :json
 
         expect(response).to have_http_status(:success)
-        expect(JSON.parse(response.body)['payload'].size).to eq(0)
+        expect(response.parsed_body['payload'].size).to eq(0)
       end
     end
   end

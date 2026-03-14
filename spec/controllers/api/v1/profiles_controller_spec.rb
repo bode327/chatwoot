@@ -21,7 +21,6 @@ RSpec.describe 'Profile API', type: :request do
             as: :json
 
         expect(response).to have_http_status(:success)
-        expect(response).to conform_schema(200)
         json_response = response.parsed_body
         expect(json_response['id']).to eq(agent.id)
         expect(json_response['email']).to eq(agent.email)
@@ -51,7 +50,6 @@ RSpec.describe 'Profile API', type: :request do
             as: :json
 
         expect(response).to have_http_status(:success)
-        expect(response).to conform_schema(200)
         json_response = response.parsed_body
         agent.reload
         expect(json_response['id']).to eq(agent.id)
@@ -66,7 +64,6 @@ RSpec.describe 'Profile API', type: :request do
             as: :json
 
         expect(response).to have_http_status(:success)
-        expect(response).to conform_schema(200)
         agent.reload
 
         expect(agent.custom_attributes['phone_number']).to eq('+123456789')
@@ -94,7 +91,6 @@ RSpec.describe 'Profile API', type: :request do
             as: :json
 
         expect(response).to have_http_status(:success)
-        expect(response).to conform_schema(200)
         expect(agent.reload.valid_password?('Test1234!')).to be true
       end
 

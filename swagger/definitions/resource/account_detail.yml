@@ -26,7 +26,9 @@ properties:
     type: object
     description: Cache keys for the account
   features:
-    type: object
+    type: array
+    items:
+      type: string
     description: Enabled features for the account
   settings:
     type: object
@@ -46,24 +48,16 @@ properties:
     description: Custom attributes of the account
     properties:
       plan_name:
-        type:
-          - string
-          - 'null'
+        type: string
         description: Subscription plan name
       subscribed_quantity:
-        type:
-          - number
-          - 'null'
+        type: number
         description: Subscribed quantity
       subscription_status:
-        type:
-          - string
-          - 'null'
+        type: string
         description: Subscription status
       subscription_ends_on:
-        type:
-          - string
-          - 'null'
+        type: string
         format: date
         description: Subscription end date
       industry:

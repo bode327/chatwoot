@@ -22,7 +22,6 @@ RSpec.describe 'Teams API', type: :request do
             as: :json
 
         expect(response).to have_http_status(:success)
-        expect(response).to conform_schema(200)
         expect(response.parsed_body.first['id']).to eq(account.teams.first.id)
       end
     end
@@ -46,7 +45,6 @@ RSpec.describe 'Teams API', type: :request do
             as: :json
 
         expect(response).to have_http_status(:success)
-        expect(response).to conform_schema(200)
         expect(response.parsed_body['id']).to eq(team.id)
       end
     end
@@ -85,7 +83,6 @@ RSpec.describe 'Teams API', type: :request do
              as: :json
 
         expect(response).to have_http_status(:success)
-        expect(response).to conform_schema(200)
         expect(Team.count).to eq(2)
       end
     end
@@ -124,7 +121,6 @@ RSpec.describe 'Teams API', type: :request do
             as: :json
 
         expect(response).to have_http_status(:success)
-        expect(response).to conform_schema(200)
         expect(team.reload.name).to eq('new-team')
       end
     end

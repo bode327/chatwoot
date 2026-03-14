@@ -143,7 +143,7 @@ class Conversation < ApplicationRecord
   end
 
   def last_incoming_message
-    messages.where(account_id: account_id)&.incoming&.last
+    messages&.incoming&.last
   end
 
   def toggle_status

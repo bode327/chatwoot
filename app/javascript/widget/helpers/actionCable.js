@@ -13,11 +13,9 @@ const isMessageInActiveConversation = (getters, message) => {
   return activeConversationId && conversationId !== activeConversationId;
 };
 
-const WIDGET_PRESENCE_INTERVAL = 60000;
-
 class ActionCableConnector extends BaseActionCableConnector {
   constructor(app, pubsubToken) {
-    super(app, pubsubToken, '', WIDGET_PRESENCE_INTERVAL);
+    super(app, pubsubToken);
     this.events = {
       'message.created': this.onMessageCreated,
       'message.updated': this.onMessageUpdated,

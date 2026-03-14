@@ -1,6 +1,4 @@
 class SamlUserBuilder
-  class AuthenticationFailed < StandardError; end
-
   def initialize(auth_hash, account_id)
     @auth_hash = auth_hash
     @account_id = account_id
@@ -18,20 +16,13 @@ class SamlUserBuilder
   def find_or_create_user
     user = User.from_email(auth_attribute('email'))
 
-    return create_user unless user
-    return existing_user_for_account(user) if user_belongs_to_account?(user)
+    if user
+      confirm_user_if_required(user)
+      convert_existing_user_to_saml(user)
+      return user
+    end
 
-    raise AuthenticationFailed, I18n.t('auth.saml.authentication_failed')
-  end
-
-  def existing_user_for_account(user)
-    confirm_user_if_required(user)
-    convert_existing_user_to_saml(user)
-    user
-  end
-
-  def user_belongs_to_account?(user)
-    user.account_users.exists?(account_id: @account_id)
+    create_user
   end
 
   def confirm_user_if_required(user)

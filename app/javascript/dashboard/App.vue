@@ -83,6 +83,16 @@ export default {
     this.setLocale(
       this.uiSettings?.locale || window.chatwootConfig.selectedLocale
     );
+
+    // Initialize Plugins Registry
+    window.ChatwootPluginRegistry = {
+      registerSidebarWidget: (identifier, component, icon, title) => {
+        this.$store.dispatch('plugins/registerSidebarWidget', { identifier, component, icon, title });
+      },
+      registerMainTab: (identifier, component, icon, title) => {
+        this.$store.dispatch('plugins/registerMainTab', { identifier, component, icon, title });
+      }
+    };
   },
   unmounted() {
     if (this.reconnectService) {

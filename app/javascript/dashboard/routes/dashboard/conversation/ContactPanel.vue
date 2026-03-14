@@ -107,6 +107,10 @@ watch(contactId, (newContactId, prevContactId) => {
   }
 });
 
+const pluginSidebarWidgets = computed(() => {
+  return store.getters['plugins/getSidebarWidgets'] || [];
+});
+
 const onDragEnd = () => {
   dragging.value = false;
   updateUISettings({
@@ -299,6 +303,21 @@ onMounted(() => {
           </div>
         </template>
       </Draggable>
+
+      <!-- Dynamic Plugins Rendering -->
+      <div v-for="widget in pluginSidebarWidgets" :key="widget.identifier" class="conversation--actions mt-3">
+        <AccordionItem
+          :title="widget.title"
+          :is-open="isContactSidebarItemOpen(`is_plugin_${widget.identifier}_open`)"
+          @toggle="value => toggleSidebarUIState(`is_plugin_${widget.identifier}_open`, value)"
+        >
+          <component
+            :is="widget.component"
+            :conversation-id="conversationId"
+            :contact-id="contactId"
+          />
+        </AccordionItem>
+      </div>
     </div>
   </div>
 </template>

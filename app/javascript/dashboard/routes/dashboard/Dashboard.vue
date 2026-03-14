@@ -85,6 +85,9 @@ export default {
       return conversationDisplayType;
     },
   },
+  mounted() {
+    this.$store.dispatch('plugins/get');
+  },
   watch: {
     isSmallScreen: {
       handler() {

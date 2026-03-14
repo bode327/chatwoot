@@ -1,0 +1,58 @@
+<% content_for(:title) do %>
+  Plugin: <%= @plugin.name %>
+<% end %>
+
+<header class="main-content__header" role="banner">
+  <h1 class="main-content__page-title" id="page-title">
+    <%= @plugin.name %> (<%= @plugin.identifier %>)
+  </h1>
+  <div>
+    <%= link_to("Back", super_admin_plugins_path, class: "button") %>
+  </div>
+</header>
+
+<section class="main-content__body">
+  <dl>
+    <dt class="attribute-label">Version</dt>
+    <dd class="attribute-data"><%= @plugin.version %></dd>
+
+    <dt class="attribute-label">Author</dt>
+    <dd class="attribute-data"><%= @plugin.author %></dd>
+
+    <dt class="attribute-label">Description</dt>
+    <dd class="attribute-data"><%= @plugin.description %></dd>
+
+    <dt class="attribute-label">Active</dt>
+    <dd class="attribute-data"><%= @plugin.active ? 'Yes' : 'No' %></dd>
+  </dl>
+
+  <h2 class="main-content__page-title mt-4">Assigned Accounts</h2>
+
+  <table aria-labelledby="page-title">
+    <thead>
+      <tr>
+        <th>Account ID</th>
+        <th>Account Name</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @accounts.each do |account| %>
+        <% assigned = @plugin.accounts.include?(account) %>
+        <tr class="js-table-row" tabindex="0">
+          <td><%= account.id %></td>
+          <td><%= account.name %></td>
+          <td><%= assigned ? 'Assigned' : 'Not Assigned' %></td>
+          <td>
+            <% if assigned %>
+              <%= button_to "Revoke Access", assign_to_account_super_admin_plugin_path(@plugin, account_id: account.id, assign: 'false'), method: :post, class: "button button--danger" %>
+            <% else %>
+              <%= button_to "Grant Access", assign_to_account_super_admin_plugin_path(@plugin, account_id: account.id, assign: 'true'), method: :post, class: "button" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</section>

@@ -48,7 +48,7 @@ import teamMembers from './modules/teamMembers';
 import teams from './modules/teams';
 import userNotificationSettings from './modules/userNotificationSettings';
 import webhooks from './modules/webhooks';
-import plugins from './modules/plugins';
+import dynamicPlugins from './modules/plugins';
 import captainAssistants from './captain/assistant';
 import captainDocuments from './captain/document';
 import captainResponses from './captain/response';
@@ -112,7 +112,7 @@ export default createStore({
     teams,
     userNotificationSettings,
     webhooks,
-    plugins,
+    plugins: dynamicPlugins,
     captainAssistants,
     captainDocuments,
     captainResponses,

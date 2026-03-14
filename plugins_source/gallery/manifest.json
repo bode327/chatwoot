@@ -1,0 +1,7 @@
+{
+  "identifier": "gallery",
+  "name": "Galeria de Mídias do Contato",
+  "version": "1.0.0",
+  "author": "Equipe de Suporte",
+  "description": "Adiciona uma galeria de mídia (Imagens, Vídeos, Áudios, Documentos e Links) que varre todas as conversas e centraliza os anexos do contato na barra lateral do painel de agentes."
+}

@@ -12,10 +12,11 @@ class Plugins::LoaderService
     manifest = validate_and_extract_manifest
     return false unless manifest
 
-    plugin_dir = @storage_dir.join(manifest['identifier'])
+    # Force pure string manipulation to avoid Pathname quirky bugs with Dir.exist? and file creation
+    plugin_dir = File.join(@storage_dir.to_s, manifest['identifier'].to_s)
 
     # Remove older version if exists
-    FileUtils.rm_rf(plugin_dir) if Dir.exist?(plugin_dir)
+    FileUtils.rm_rf(plugin_dir) if File.directory?(plugin_dir)
     FileUtils.mkdir_p(plugin_dir)
 
     # Determine the root prefix if the user zipped a folder instead of the contents directly
@@ -34,12 +35,19 @@ class Plugins::LoaderService
         # Strip root folder path if user zipped the parent directory
         relative_path = root_prefix ? f.name.sub(/^#{Regexp.escape(root_prefix)}/, '') : f.name
 
-        # Skip if the path is empty (e.g. it was just the root folder entry)
-        next if relative_path.blank?
+        # Skip if the path is empty or it is a directory entry
+        next if relative_path.blank? || f.directory? || f.name.end_with?('/')
 
         f_path = File.join(plugin_dir, relative_path)
-        FileUtils.mkdir_p(File.dirname(f_path))
-        zip_file.extract(f, f_path) unless File.exist?(f_path) || f.name.end_with?('/')
+
+        # Guard against Zip Slip and ensure parent directory exists
+        f_dir = File.dirname(f_path)
+        FileUtils.mkdir_p(f_dir) unless File.directory?(f_dir)
+
+        # Extract the file if it does not already exist
+        if !File.exist?(f_path)
+          zip_file.extract(f, f_path)
+        end
       end
     end
 

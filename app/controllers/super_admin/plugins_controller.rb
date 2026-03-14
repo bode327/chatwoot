@@ -16,17 +16,19 @@ class SuperAdmin::PluginsController < SuperAdmin::ApplicationController
     if params[:plugin][:file].present?
       file_path = params[:plugin][:file].tempfile.path
 
-      service = Plugins::LoaderService.new(file_path)
-      @plugin = service.perform
+      begin
+        service = Plugins::LoaderService.new(file_path)
+        @plugin = service.perform
 
-      if @plugin
         flash[:notice] = "Plugin #{@plugin.name} loaded successfully."
         redirect_to super_admin_plugins_path
-      else
-        flash[:error] = "Failed to load plugin."
+      rescue StandardError => e
+        @plugin = Plugin.new
+        flash[:error] = "Failed to load plugin: #{e.message}"
         render :new
       end
     else
+      @plugin = Plugin.new
       flash[:error] = "Please provide a valid zip file."
       render :new
     end

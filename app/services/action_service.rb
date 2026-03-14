@@ -47,9 +47,7 @@ class ActionService
 
     @agent = @account.users.find_by(id: agent_ids)
 
-    return unless @agent.present? && @agent.confirmed?
-
-    @conversation.update!(assignee_id: @agent.id)
+    @conversation.update!(assignee_id: @agent.id) if @agent.present?
   end
 
   def remove_label(labels)

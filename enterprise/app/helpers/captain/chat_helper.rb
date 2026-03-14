@@ -5,6 +5,7 @@ module Captain::ChatHelper
 
   def request_chat_completion
     log_chat_completion_request
+
     chat = build_chat
 
     add_messages_to_chat(chat)
@@ -85,8 +86,7 @@ module Captain::ChatHelper
       temperature: temperature,
       metadata: {
         assistant_id: @assistant&.id,
-        channel_type: resolved_channel_type,
-        source: @source
+        channel_type: resolved_channel_type
       }.compact
     }
   end
@@ -130,6 +130,7 @@ module Captain::ChatHelper
   end
 
   def log_chat_completion_request
-    Rails.logger.info("#{self.class.name} Assistant: #{@assistant.id}, requesting completion for #{@messages} with #{@tools&.length || 0} tools")
+    Rails.logger.info("#{self.class.name} Assistant: #{@assistant.id}, Requesting chat completion " \
+                      "for messages #{@messages} with #{@tools&.length || 0} tools")
   end
 end

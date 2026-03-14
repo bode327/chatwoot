@@ -45,18 +45,11 @@ properties:
   contact:
     $ref: '#/components/schemas/contact_detail'
     description: Contact details
-  assignee:
-    allOf:
-      - $ref: '#/components/schemas/agent'
-    description: The agent assigned to the conversation
-    nullable: true
   agent_last_seen_at:
-    type:
-      - string
-      - 'null'
+    type: string
     description: Timestamp when the agent last saw the conversation
+    nullable: true
   assignee_last_seen_at:
-    type:
-      - string
-      - 'null'
+    type: string
     description: Timestamp when the assignee last saw the conversation
+    nullable: true

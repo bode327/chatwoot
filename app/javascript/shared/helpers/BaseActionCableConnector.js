@@ -6,12 +6,7 @@ const RECONNECT_INTERVAL = 1000;
 class BaseActionCableConnector {
   static isDisconnected = false;
 
-  constructor(
-    app,
-    pubsubToken,
-    websocketHost = '',
-    presenceInterval = PRESENCE_INTERVAL
-  ) {
+  constructor(app, pubsubToken, websocketHost = '') {
     const websocketURL = websocketHost ? `${websocketHost}/cable` : undefined;
 
     this.consumer = createConsumer(websocketURL);
@@ -42,7 +37,7 @@ class BaseActionCableConnector {
       setTimeout(() => {
         this.subscription.updatePresence();
         this.triggerPresenceInterval();
-      }, presenceInterval);
+      }, PRESENCE_INTERVAL);
     };
     this.triggerPresenceInterval();
   }

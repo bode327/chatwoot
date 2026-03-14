@@ -106,7 +106,7 @@ class Captain::Assistant < ApplicationRecord
       scenarios: scenarios.enabled.map do |scenario|
         {
           title: scenario.title,
-          key: scenario.handoff_key,
+          key: scenario.title.parameterize.underscore,
           description: scenario.description
         }
       end,

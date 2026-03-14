@@ -22,7 +22,6 @@ properties:
         type: string
         description: Type of channel
       provider:
-        type:
-          - string
-          - 'null'
+        type: string
         description: Provider of the inbox
+        nullable: true

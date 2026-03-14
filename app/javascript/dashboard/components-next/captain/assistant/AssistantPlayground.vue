@@ -18,18 +18,10 @@ const newMessage = ref('');
 const isLoading = ref(false);
 
 const formatMessagesForApi = () => {
-  return messages.value.map(message => {
-    const payload = {
-      role: message.sender,
-      content: message.content,
-    };
-
-    if (message.sender === 'assistant' && message.agentName) {
-      payload.agent_name = message.agentName;
-    }
-
-    return payload;
-  });
+  return messages.value.map(message => ({
+    role: message.sender,
+    content: message.content,
+  }));
 };
 
 const resetConversation = () => {
@@ -70,7 +62,6 @@ const sendMessage = async () => {
     messages.value.push({
       content: data.response,
       sender: 'assistant',
-      agentName: data.agent_name,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
@@ -79,12 +70,6 @@ const sendMessage = async () => {
   } finally {
     isLoading.value = false;
   }
-};
-
-const handleEnterKey = event => {
-  if (event.isComposing) return;
-  event.preventDefault();
-  sendMessage();
 };
 </script>
 
@@ -119,7 +104,7 @@ const handleEnterKey = event => {
         v-model="newMessage"
         class="flex-1 bg-transparent border-none focus:outline-none text-sm mb-0 text-n-slate-12 placeholder:text-n-slate-10"
         :placeholder="t('CAPTAIN.PLAYGROUND.MESSAGE_PLACEHOLDER')"
-        @keydown.enter.exact="handleEnterKey"
+        @keyup.enter="sendMessage"
       />
       <NextButton
         ghost

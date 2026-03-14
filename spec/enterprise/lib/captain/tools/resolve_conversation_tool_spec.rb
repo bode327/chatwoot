@@ -29,14 +29,10 @@ RSpec.describe Captain::Tools::ResolveConversationTool do
       )
     end
 
-    it 'creates a conversation_resolved reporting event' do
-      create(:captain_inbox, captain_assistant: assistant, inbox: inbox)
+    it 'clears captain_resolve_reason after execution' do
+      tool.perform(tool_context, reason: 'Possible spam')
 
-      expect do
-        perform_enqueued_jobs do
-          tool.perform(tool_context, reason: 'Possible spam')
-        end
-      end.to change { ReportingEvent.where(conversation_id: conversation.id, name: 'conversation_resolved').count }.by(1)
+      expect(Current.captain_resolve_reason).to be_nil
     end
   end
 

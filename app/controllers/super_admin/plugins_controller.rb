@@ -1,6 +1,11 @@
 class SuperAdmin::PluginsController < SuperAdmin::ApplicationController
   def index
-    @plugins = Plugin.all
+    if ActiveRecord::Base.connection.table_exists?('plugins')
+      @plugins = Plugin.all
+    else
+      @plugins = []
+      flash.now[:error] = "The 'plugins' database table does not exist. Please run database migrations or the SQL script from the documentation."
+    end
   end
 
   def new

@@ -197,6 +197,9 @@ gem 'ai-agents', '>= 0.9.1'
 gem 'ruby_llm', '>= 1.8.2'
 gem 'ruby_llm-schema'
 
+# for unzipping uploaded plugins
+gem 'rubyzip', '>= 2.3.0'
+
 gem 'cld3', '~> 3.7'
 
 # OpenTelemetry for LLM observability

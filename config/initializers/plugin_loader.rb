@@ -3,7 +3,7 @@ Rails.application.config.after_initialize do
   # Rescuing ActiveRecord::NoDatabaseError is useful for initial migrations
   begin
     PluginLoader.load_all_plugins if defined?(Plugin) && ActiveRecord::Base.connection.table_exists?('plugins')
-  rescue ActiveRecord::NoDatabaseError, PG::ConnectionBad
+  rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad
     Rails.logger.warn "Database not ready, skipping plugin loading."
   end
 end

@@ -1,4 +1,4 @@
-import ApiClient from '../../api/ApiClient';
+import ApiClient from './ApiClient';
 
 class PluginsAPI extends ApiClient {
   constructor() {

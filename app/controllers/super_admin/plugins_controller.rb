@@ -21,7 +21,7 @@ class SuperAdmin::PluginsController < SuperAdmin::ApplicationController
         @plugin = service.perform
 
         flash[:notice] = "Plugin #{@plugin.name} loaded successfully."
-        redirect_to super_admin_plugins_path
+        redirect_to "/super_admin/plugins"
       rescue StandardError => e
         Rails.logger.error "Plugin Installation Failed: #{e.message}\n#{e.backtrace.join("\n")}"
         @plugin = Plugin.new
@@ -45,7 +45,7 @@ class SuperAdmin::PluginsController < SuperAdmin::ApplicationController
 
     if @plugin.update(plugin_params)
       flash[:notice] = "Plugin updated successfully."
-      redirect_to super_admin_plugins_path
+      redirect_to "/super_admin/plugins"
     else
       flash[:error] = "Failed to update plugin."
       render :edit
@@ -61,7 +61,7 @@ class SuperAdmin::PluginsController < SuperAdmin::ApplicationController
     FileUtils.rm_rf(plugin_dir) if Dir.exist?(plugin_dir)
 
     flash[:notice] = "Plugin deleted successfully."
-    redirect_to super_admin_plugins_path
+    redirect_to "/super_admin/plugins"
   end
 
   # Custom action to distribute the plugin
@@ -79,7 +79,7 @@ class SuperAdmin::PluginsController < SuperAdmin::ApplicationController
       flash[:notice] = "Plugin disabled for account #{@account.name}"
     end
 
-    redirect_to super_admin_plugin_path(@plugin)
+    redirect_to "/super_admin/plugins/#{@plugin.id}"
   end
 
   private

@@ -8,7 +8,7 @@
   </h1>
 
   <div>
-    <%= link_to("Upload New Plugin", new_super_admin_plugin_path, class: "button") %>
+    <%= link_to("Upload New Plugin", "/super_admin/plugins/new", class: "button") %>
   </div>
 </header>
 
@@ -34,8 +34,8 @@
           <td><%= plugin.version %></td>
           <td><%= plugin.active ? 'Active' : 'Inactive' %></td>
           <td>
-            <%= link_to("View", super_admin_plugin_path(plugin), class: "action-show") %>
-            <%= link_to("Delete", super_admin_plugin_path(plugin), method: :delete, data: { confirm: 'Are you sure?' }, class: "text-color-red") %>
+            <%= link_to("View", "/super_admin/plugins/#{plugin.id}", class: "action-show") %>
+            <%= link_to("Delete", "/super_admin/plugins/#{plugin.id}", method: :delete, data: { confirm: 'Are you sure?' }, class: "text-color-red") %>
           </td>
         </tr>
       <% end %>

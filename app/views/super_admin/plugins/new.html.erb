@@ -8,12 +8,12 @@
   </h1>
 
   <div>
-    <%= link_to("Back", super_admin_plugins_path, class: "button") %>
+    <%= link_to("Back", "/super_admin/plugins", class: "button") %>
   </div>
 </header>
 
 <section class="main-content__body">
-  <%= form_with model: @plugin, url: super_admin_plugins_path, local: true, multipart: true do |f| %>
+  <%= form_with model: @plugin, url: "/super_admin/plugins", local: true, multipart: true do |f| %>
     <div class="field-unit">
       <div class="field-unit__label">
         <label>Plugin ZIP File</label>

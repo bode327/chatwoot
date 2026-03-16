@@ -7,7 +7,7 @@
     <%= @plugin.name %> (<%= @plugin.identifier %>)
   </h1>
   <div>
-    <%= link_to("Back", super_admin_plugins_path, class: "button") %>
+    <%= link_to("Back", "/super_admin/plugins", class: "button") %>
   </div>
 </header>
 
@@ -46,9 +46,9 @@
           <td><%= assigned ? 'Assigned' : 'Not Assigned' %></td>
           <td>
             <% if assigned %>
-              <%= button_to "Revoke Access", assign_to_account_super_admin_plugin_path(@plugin, account_id: account.id, assign: 'false'), method: :post, class: "button button--danger" %>
+              <%= button_to "Revoke Access", "/super_admin/plugins/#{@plugin.id}/assign_to_account?account_id=#{account.id}&assign=false", method: :post, class: "button button--danger" %>
             <% else %>
-              <%= button_to "Grant Access", assign_to_account_super_admin_plugin_path(@plugin, account_id: account.id, assign: 'true'), method: :post, class: "button" %>
+              <%= button_to "Grant Access", "/super_admin/plugins/#{@plugin.id}/assign_to_account?account_id=#{account.id}&assign=true", method: :post, class: "button" %>
             <% end %>
           </td>
         </tr>

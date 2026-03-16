@@ -14,19 +14,20 @@ class PluginLoader
       backend_dir = plugin_dir.join('backend')
 
       if Dir.exist?(backend_dir.join('controllers'))
-        if ActiveSupport::Dependencies.autoload_paths.frozen?
-          # If frozen (which it usually is after boot in newer Rails), we can append to the $LOAD_PATH instead
-          $LOAD_PATH << backend_dir.join('controllers').to_s
-        else
-          ActiveSupport::Dependencies.autoload_paths << backend_dir.join('controllers').to_s
+        $LOAD_PATH << backend_dir.join('controllers').to_s
+        begin
+          ActiveSupport::Dependencies.autoload_paths << backend_dir.join('controllers').to_s unless ActiveSupport::Dependencies.autoload_paths.frozen?
+        rescue FrozenError
+          # Already appended to $LOAD_PATH
         end
       end
 
       if Dir.exist?(backend_dir.join('models'))
-        if ActiveSupport::Dependencies.autoload_paths.frozen?
-          $LOAD_PATH << backend_dir.join('models').to_s
-        else
-          ActiveSupport::Dependencies.autoload_paths << backend_dir.join('models').to_s
+        $LOAD_PATH << backend_dir.join('models').to_s
+        begin
+          ActiveSupport::Dependencies.autoload_paths << backend_dir.join('models').to_s unless ActiveSupport::Dependencies.autoload_paths.frozen?
+        rescue FrozenError
+          # Already appended to $LOAD_PATH
         end
       end
 

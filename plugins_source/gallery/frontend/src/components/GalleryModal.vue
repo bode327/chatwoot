@@ -146,17 +146,21 @@ export default {
     async fetchMedia() {
       this.loading = true;
       try {
-        const accountId = window.chatwootConfig?.accountId || window.location.pathname.split('/')[2];
-        const response = await fetch(`/api/v1/accounts/${accountId}/plugins/gallery/${this.contactId}/media`, {
-          headers: {
-            ...window.chatwootConfig?.headers,
-            'Content-Type': 'application/json'
-          }
+        // URL Pathname logic fix.
+        // If window.location.pathname is '/app/accounts/1/conversations/...', split('/')[3] is '1'
+        const pathSegments = window.location.pathname.split('/');
+        const fallbackAccountId = pathSegments.includes('accounts') ? pathSegments[pathSegments.indexOf('accounts') + 1] : '1';
+        const accountId = window.chatwootConfig?.accountId || fallbackAccountId;
+
+        // Use Chatwoot's globally configured axios instance so session tokens are automatically attached
+        // Fallback to fetch if window.axios is not available (though it always is in chatwoot)
+        const axiosInstance = window.axios || window.ChatwootAxios;
+        const response = await axiosInstance.get(`/api/v1/accounts/${accountId}/plugins/gallery/media`, {
+          params: { contact_id: this.contactId }
         });
 
-        if (!response.ok) throw new Error("Failed to fetch");
-
-        this.mediaList = await response.json();
+        const data = response.data;
+        this.mediaList = data.data || [];
       } catch (err) {
         console.error("Gallery Plugin: falha ao carregar mídias do contato", err);
       } finally {

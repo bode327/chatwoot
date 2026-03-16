@@ -52,7 +52,11 @@ Rails.application.routes.draw do
             resource :contact_merge, only: [:create]
           end
           resource :bulk_actions, only: [:create]
-          resources :plugins, only: [:index, :show]
+          resources :plugins, only: [:index, :show] do
+            # Provide a generic wildcard route under a plugin to pass to its own controller
+            # E.g., /api/v1/accounts/1/plugins/gallery/media
+            match '*action_path', to: 'plugin_api#dispatch_action', via: :all, format: false
+          end
           resources :agents, only: [:index, :create, :update, :destroy] do
             post :bulk_create, on: :collection
           end

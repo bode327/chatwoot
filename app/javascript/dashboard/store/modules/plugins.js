@@ -31,11 +31,11 @@ const actions = {
           script.src = `/plugins/${plugin.identifier}/frontend/dist/plugin.js`;
           document.body.appendChild(script);
 
-          // Optionally load CSS if exists
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = `/plugins/${plugin.identifier}/frontend/dist/style.css`;
-          document.head.appendChild(link);
+          // Note: we removed the aggressive <link href="style.css"> injection here.
+          // Since not all plugins have CSS (like the gallery plugin you uploaded),
+          // requesting a missing file results in a 404 text/plain response that browser complains about.
+          // Plugin devs should import CSS directly within their Vite plugin.js build via
+          // standard CSS injection tools if they have styles, or we can add a flag to plugin.json later.
         }
       });
     } catch (error) {

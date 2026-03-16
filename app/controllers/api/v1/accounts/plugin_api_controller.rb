@@ -1,6 +1,5 @@
 class Api::V1::Accounts::PluginApiController < Api::V1::Accounts::BaseController
   before_action :check_authorization
-  skip_before_action :verify_authenticity_token
 
   def dispatch_action
     plugin_identifier = params[:plugin_id]

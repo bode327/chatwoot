@@ -24,8 +24,12 @@ class PluginAssetsController < ApplicationController
                   else Rack::Mime.mime_type(ext, 'text/plain')
                   end
 
-      response.headers['Content-Type'] = mime_type
-      render body: File.read(file_path), content_type: mime_type
+      # Use send_data with disposition inline.
+      # By calling send_data, ActionController::DataStreaming is used,
+      # which properly formats the Rack response array and prevents
+      # ActionDispatch and Rack::Lint from overriding 'Content-Type'
+      # headers for string responses (like `render plain`).
+      send_data File.read(file_path), type: mime_type, disposition: 'inline'
     else
       render plain: 'Not Found', status: :not_found
     end

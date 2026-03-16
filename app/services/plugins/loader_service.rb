@@ -35,10 +35,18 @@ class Plugins::LoaderService
         # Strip root folder path if user zipped the parent directory
         relative_path = root_prefix ? f.name.sub(/^#{Regexp.escape(root_prefix)}/, '') : f.name
 
+        # Strip leading slashes to prevent absolute path extraction (Zip Slip)
+        relative_path = relative_path.sub(/^\/+/, '')
+
         # Skip if the path is empty or it is a directory entry
         next if relative_path.blank? || f.directory? || f.name.end_with?('/')
 
-        f_path = File.join(plugin_dir, relative_path)
+        # Build the final extraction path and ensure it's strictly within plugin_dir
+        f_path = File.expand_path(relative_path, plugin_dir)
+        unless f_path.start_with?(plugin_dir.to_s)
+          Rails.logger.warn "Skipping extraction of #{relative_path} because it resolves outside of plugin_dir"
+          next
+        end
 
         # Guard against Zip Slip and ensure parent directory exists
         f_dir = File.dirname(f_path)
@@ -46,7 +54,12 @@ class Plugins::LoaderService
 
         # Extract the file if it does not already exist
         if !File.exist?(f_path)
-          zip_file.extract(f, f_path)
+          # Use rubyzip's robust stream write to circumvent path parsing issues
+          File.open(f_path, 'wb') do |output_file|
+            f.get_input_stream do |is|
+              IO.copy_stream(is, output_file)
+            end
+          end
         end
       end
     end

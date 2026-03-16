@@ -12,14 +12,15 @@ class Api::V1::Accounts::PluginApiController < Api::V1::Accounts::BaseController
 
     # Translate plugin_id (e.g., 'gallery') and action_path (e.g., 'media')
     # to a specific controller action inside the plugin's namespace
-    # Example: "Plugins::GalleryController#media"
+    # To keep plugins structured cleanly within Chatwoot's API versioning,
+    # the controller should be nested under Api::V1::Accounts::Plugins
 
-    controller_name = "Plugins::#{plugin_identifier.camelize}Controller"
+    controller_name = "Api::V1::Accounts::Plugins::#{plugin_identifier.camelize}Controller"
 
     begin
       controller_class = controller_name.constantize
     rescue NameError
-      return render json: { error: "Plugin controller #{controller_name} not found. Ensure the plugin zip contains a backend/controllers/#{plugin_identifier}_controller.rb file defining it." }, status: :not_implemented
+      return render json: { error: "Plugin controller #{controller_name} not found. Ensure the plugin zip contains a backend/controllers/api/v1/accounts/plugins/#{plugin_identifier}_controller.rb file defining it or the class is correctly named." }, status: :not_implemented
     end
 
     # We must instantiate the controller and manually dispatch the action

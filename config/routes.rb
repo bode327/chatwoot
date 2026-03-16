@@ -650,6 +650,9 @@ Rails.application.routes.draw do
       end
       resources :account_plugins
 
+      # explicitly add POST route for assign_to_account to avoid generic route issues
+      post 'plugins/:id/assign_to_account', to: 'plugins#assign_to_account'
+
       # resources that doesn't appear in primary navigation in super admin
       resources :account_users, only: [:new, :create, :show, :destroy]
     end

@@ -23,8 +23,9 @@ class SuperAdmin::PluginsController < SuperAdmin::ApplicationController
         flash[:notice] = "Plugin #{@plugin.name} loaded successfully."
         redirect_to super_admin_plugins_path
       rescue StandardError => e
+        Rails.logger.error "Plugin Installation Failed: #{e.message}\n#{e.backtrace.join("\n")}"
         @plugin = Plugin.new
-        flash[:error] = "Failed to load plugin: #{e.message}"
+        flash[:error] = "Failed to load plugin: #{e.message.truncate(200)}"
         render :new
       end
     else

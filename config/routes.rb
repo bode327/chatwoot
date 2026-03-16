@@ -607,6 +607,11 @@ Rails.application.routes.draw do
   get '.well-known/cf-custom-hostname-challenge/:id', to: 'custom_domains#verify'
 
   # ----------------------------------------------------------------------
+  # Plugin Static Assets (Development/Testing bypass for ActionDispatch)
+  # In production, reverse proxy (Nginx) should ideally serve these
+  get '/plugins/:plugin_identifier/frontend/dist/*path', to: 'plugin_assets#serve', format: false
+
+  # ----------------------------------------------------------------------
   # Internal Monitoring Routes
   require 'sidekiq/web'
   require 'sidekiq/cron/web'

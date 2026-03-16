@@ -25,8 +25,9 @@ const actions = {
         if (!document.getElementById(scriptId)) {
           const script = document.createElement('script');
           script.id = scriptId;
-          script.type = 'module';
-          // Using standard ES Module import for Vite generated bundles
+          // In Vite library mode (IIFE), we shouldn't use type="module" if not exporting ES module.
+          // We will fallback to standard text/javascript
+          script.type = 'text/javascript';
           script.src = `/plugins/${plugin.identifier}/frontend/dist/plugin.js`;
           document.body.appendChild(script);
 
@@ -38,7 +39,7 @@ const actions = {
         }
       });
     } catch (error) {
-      // Handle error
+      console.error('Failed to fetch or evaluate dynamic plugins:', error);
     }
   },
   registerSidebarWidget({ commit }, payload) {

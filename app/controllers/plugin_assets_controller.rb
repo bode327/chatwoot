@@ -24,7 +24,8 @@ class PluginAssetsController < ApplicationController
                   else Rack::Mime.mime_type(ext, 'text/plain')
                   end
 
-      send_file file_path, type: mime_type, disposition: 'inline'
+      response.headers['Content-Type'] = mime_type
+      render body: File.read(file_path), content_type: mime_type
     else
       render plain: 'Not Found', status: :not_found
     end

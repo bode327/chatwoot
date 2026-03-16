@@ -43,6 +43,9 @@ sync(store, router);
 
 const pinia = createPinia();
 
+import * as VueGlobal from 'vue';
+window.Vue = VueGlobal;
+
 const app = createApp(App);
 app.use(i18n);
 app.use(store);

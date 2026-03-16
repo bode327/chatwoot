@@ -11,8 +11,19 @@ class PluginAssetsController < ApplicationController
     file_path = Rails.root.join('storage', 'plugins', plugin_identifier, 'frontend', 'dist', path.sub(/\A\//, ''))
 
     if File.exist?(file_path)
-      # Guess mime type based on extension
-      mime_type = Rack::Mime.mime_type(File.extname(file_path).to_s)
+      # Guess mime type based on extension manually if Rack::Mime fails
+      ext = File.extname(file_path).to_s.downcase
+      mime_type = case ext
+                  when '.css' then 'text/css'
+                  when '.js' then 'application/javascript'
+                  when '.html' then 'text/html'
+                  when '.json' then 'application/json'
+                  when '.png' then 'image/png'
+                  when '.jpg', '.jpeg' then 'image/jpeg'
+                  when '.svg' then 'image/svg+xml'
+                  else Rack::Mime.mime_type(ext, 'text/plain')
+                  end
+
       send_file file_path, type: mime_type, disposition: 'inline'
     else
       render plain: 'Not Found', status: :not_found

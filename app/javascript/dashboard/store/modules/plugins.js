@@ -5,6 +5,7 @@ const state = {
   uiElements: {
     sidebarWidgets: [],
     mainTabs: [],
+    conversationHeaderItems: [],
   },
 };
 
@@ -12,6 +13,7 @@ const getters = {
   getPlugins: $state => $state.records,
   getSidebarWidgets: $state => $state.uiElements.sidebarWidgets,
   getMainTabs: $state => $state.uiElements.mainTabs,
+  getConversationHeaderItems: $state => $state.uiElements.conversationHeaderItems,
 };
 
 const actions = {
@@ -48,6 +50,9 @@ const actions = {
   registerMainTab({ commit }, payload) {
     commit('ADD_MAIN_TAB', payload);
   },
+  registerConversationHeaderItem({ commit }, payload) {
+    commit('ADD_CONVERSATION_HEADER_ITEM', payload);
+  },
 };
 
 const mutations = {
@@ -64,6 +69,12 @@ const mutations = {
     const exists = $state.uiElements.mainTabs.find(t => t.identifier === tab.identifier);
     if (!exists) {
       $state.uiElements.mainTabs.push(tab);
+    }
+  },
+  ADD_CONVERSATION_HEADER_ITEM($state, item) {
+    const exists = $state.uiElements.conversationHeaderItems.find(i => i.identifier === item.identifier);
+    if (!exists) {
+      $state.uiElements.conversationHeaderItems.push(item);
     }
   },
 };

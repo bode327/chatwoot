@@ -25,6 +25,10 @@ const [showActionsDropdown, toggleDropdown] = useToggle(false);
 
 const currentChat = computed(() => store.getters.getSelectedChat);
 
+const pluginHeaderItems = computed(() => {
+  return store.getters['plugins/getConversationHeaderItems'] || [];
+});
+
 const actionMenuItems = computed(() => {
   const items = [];
 
@@ -92,6 +96,10 @@ onUnmounted(() => {
 
 <template>
   <div class="relative flex items-center gap-2 actions--container">
+    <!-- Dynamically injected plugin conversation header items -->
+    <div v-for="item in pluginHeaderItems" :key="item.identifier">
+      <component :is="item.component" />
+    </div>
     <ResolveAction
       :conversation-id="currentChat.id"
       :status="currentChat.status"

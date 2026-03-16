@@ -91,6 +91,9 @@ export default {
       },
       registerMainTab: (identifier, component, icon, title) => {
         this.$store.dispatch('plugins/registerMainTab', { identifier, component, icon, title });
+      },
+      registerConversationHeaderItem: (identifier, component, icon, title) => {
+        this.$store.dispatch('plugins/registerConversationHeaderItem', { identifier, component, icon, title });
       }
     };
   },

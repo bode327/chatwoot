@@ -20,6 +20,10 @@ class PluginLoader
         rescue FrozenError
           # Already appended to $LOAD_PATH
         end
+        # Explicitly require the files to bypass Zeitwerk cache issues when hot-loading
+        Dir.glob(backend_dir.join('controllers', '**', '*.rb')).each do |file|
+          require_dependency file
+        end
       end
 
       if Dir.exist?(backend_dir.join('models'))
@@ -28,6 +32,10 @@ class PluginLoader
           ActiveSupport::Dependencies.autoload_paths << backend_dir.join('models').to_s unless ActiveSupport::Dependencies.autoload_paths.frozen?
         rescue FrozenError
           # Already appended to $LOAD_PATH
+        end
+        # Explicitly require models
+        Dir.glob(backend_dir.join('models', '**', '*.rb')).each do |file|
+          require_dependency file
         end
       end
 

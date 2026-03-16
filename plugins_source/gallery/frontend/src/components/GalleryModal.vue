@@ -134,13 +134,15 @@ export default {
     this.fetchMedia();
 
     // Close on escape
-    const handleEscape = (e) => {
+    this.handleEscape = (e) => {
       if (e.key === 'Escape') this.$emit('close');
     };
-    window.addEventListener('keydown', handleEscape);
-    this.$once('hook:beforeDestroy', () => {
-      window.removeEventListener('keydown', handleEscape);
-    });
+    window.addEventListener('keydown', this.handleEscape);
+  },
+  unmounted() {
+    if (this.handleEscape) {
+      window.removeEventListener('keydown', this.handleEscape);
+    }
   },
   methods: {
     async fetchMedia() {

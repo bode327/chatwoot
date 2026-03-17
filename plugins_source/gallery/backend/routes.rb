@@ -1,11 +1,2 @@
-namespace :api, defaults: { format: 'json' } do
-  namespace :v1 do
-    resources :accounts, module: :accounts do
-      namespace :plugins do
-        namespace :gallery do
-          get '/:contact_id/media', to: 'gallery#media'
-        end
-      end
-    end
-  end
-end
+# We don't strictly need routes here anymore because of the dynamic ActionDispatch route `dispatch_action`.
+# But if you choose to load custom paths via the PluginLoader, here's an example.

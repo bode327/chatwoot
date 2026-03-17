@@ -1,8 +1,12 @@
-class Api::V1::Accounts::Plugins::GalleryController < Api::V1::Accounts::BaseController
-  before_action :set_contact
-  before_action :check_authorization
+module Api
+  module V1
+    module Accounts
+      module Plugins
+        class GalleryController < Api::V1::Accounts::BaseController
+          before_action :set_contact
+          before_action :check_authorization
 
-  def media
+          def media
     # Find all conversations for this contact
     conversation_ids = @contact.conversations.pluck(:id)
 
@@ -56,7 +60,11 @@ class Api::V1::Accounts::Plugins::GalleryController < Api::V1::Accounts::BaseCon
     head :not_found unless @contact
   end
 
-  def check_authorization
-    authorize @contact, :show?
+          def check_authorization
+            authorize @contact, :show?
+          end
+        end
+      end
+    end
   end
 end

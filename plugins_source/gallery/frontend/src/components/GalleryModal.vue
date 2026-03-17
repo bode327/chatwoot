@@ -161,8 +161,19 @@ export default {
           params: { contact_id: this.contactId }
         });
 
-        const data = response.data;
-        this.mediaList = data.data || [];
+        // Chatwoot sometimes returns JSON directly, or sometimes nested in data.payload or data.data.
+        // Let's handle all possibilities, considering we render `render json: results` in the backend directly.
+        const responseData = response.data;
+
+        if (Array.isArray(responseData)) {
+          this.mediaList = responseData;
+        } else if (responseData && responseData.data && Array.isArray(responseData.data)) {
+          this.mediaList = responseData.data;
+        } else if (responseData && responseData.payload && Array.isArray(responseData.payload)) {
+          this.mediaList = responseData.payload;
+        } else {
+          this.mediaList = [];
+        }
       } catch (err) {
         console.error("Gallery Plugin: falha ao carregar mídias do contato", err);
       } finally {

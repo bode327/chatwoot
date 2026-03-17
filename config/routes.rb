@@ -55,7 +55,7 @@ Rails.application.routes.draw do
           resources :plugins, only: [:index, :show] do
             # Provide a generic wildcard route under a plugin to pass to its own controller
             # E.g., /api/v1/accounts/1/plugins/gallery/media
-            match '*action_path', to: 'plugin_api#dispatch_action', via: :all, format: false
+            match '*action_path', to: 'plugin_api#dispatch_action', via: :all
           end
           resources :agents, only: [:index, :create, :update, :destroy] do
             post :bulk_create, on: :collection

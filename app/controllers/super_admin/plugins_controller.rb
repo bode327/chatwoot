@@ -40,8 +40,29 @@ class SuperAdmin::PluginsController < SuperAdmin::ApplicationController
     @accounts = Account.all
   end
 
+  def edit
+    @plugin = Plugin.find(params[:id])
+  end
+
   def update
     @plugin = Plugin.find(params[:id])
+
+    # Handle plugin upgrade via zip file upload on the edit page
+    if params[:plugin] && params[:plugin][:file].present?
+      file_path = params[:plugin][:file].tempfile.path
+      begin
+        service = Plugins::LoaderService.new(file_path)
+        updated_plugin = service.perform
+        flash[:notice] = "Plugin #{updated_plugin.name} upgraded successfully to version #{updated_plugin.version}."
+        redirect_to "/super_admin/plugins"
+        return
+      rescue StandardError => e
+        Rails.logger.error "Plugin Upgrade Failed: #{e.message}\n#{e.backtrace.join("\n")}"
+        flash[:error] = "Failed to upgrade plugin: #{e.message.truncate(200)}"
+        render :edit
+        return
+      end
+    end
 
     if @plugin.update(plugin_params)
       flash[:notice] = "Plugin updated successfully."

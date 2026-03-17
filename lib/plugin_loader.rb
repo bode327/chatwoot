@@ -22,7 +22,7 @@ class PluginLoader
         end
         # Explicitly require the files to bypass Zeitwerk cache issues when hot-loading
         Dir.glob(backend_dir.join('controllers', '**', '*.rb')).each do |file|
-          require_dependency file
+          require file
         end
       end
 
@@ -35,7 +35,7 @@ class PluginLoader
         end
         # Explicitly require models
         Dir.glob(backend_dir.join('models', '**', '*.rb')).each do |file|
-          require_dependency file
+          require file
         end
       end
 

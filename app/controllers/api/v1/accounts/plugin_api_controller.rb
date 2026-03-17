@@ -20,7 +20,19 @@ class Api::V1::Accounts::PluginApiController < Api::V1::Accounts::BaseController
     begin
       controller_class = controller_name.constantize
     rescue NameError
-      return render json: { error: "Plugin controller #{controller_name} not found. Ensure the plugin zip contains a backend/controllers/api/v1/accounts/plugins/#{plugin_identifier}_controller.rb file defining it or the class is correctly named." }, status: :not_implemented
+      # Try falling back to load it directly if Zeitwerk didn't catch it correctly from the cache
+      plugin_dir = Rails.root.join('storage', 'plugins', plugin_identifier)
+      backend_file = plugin_dir.join('backend', 'controllers', 'api', 'v1', 'accounts', 'plugins', "#{plugin_identifier}_controller.rb")
+
+      if File.exist?(backend_file)
+        require backend_file.to_s
+      end
+
+      begin
+        controller_class = controller_name.constantize
+      rescue NameError
+        return render json: { error: "Plugin controller #{controller_name} not found. Ensure the plugin zip contains a backend/controllers/api/v1/accounts/plugins/#{plugin_identifier}_controller.rb file defining it or the class is correctly named." }, status: :not_implemented
+      end
     end
 
     # We must instantiate the controller and manually dispatch the action

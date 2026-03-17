@@ -35,6 +35,7 @@
           <td><%= plugin.active ? 'Active' : 'Inactive' %></td>
           <td>
             <%= link_to("View", "/super_admin/plugins/#{plugin.id}", class: "action-show") %>
+            <%= link_to("Edit / Upgrade", "/super_admin/plugins/#{plugin.id}/edit", class: "action-edit") %>
             <%= link_to("Delete", "/super_admin/plugins/#{plugin.id}", method: :delete, data: { confirm: 'Are you sure?' }, class: "text-color-red") %>
           </td>
         </tr>

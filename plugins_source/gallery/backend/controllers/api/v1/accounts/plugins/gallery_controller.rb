@@ -13,7 +13,7 @@ module Api
     # Fetch all attachments related to these conversations
     @attachments = Attachment
                      .joins(:message)
-                     .where(message: { conversation_id: conversation_ids })
+                     .where(messages: { conversation_id: conversation_ids })
                      .order(created_at: :desc)
                      .limit(100)
 

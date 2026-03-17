@@ -36,7 +36,13 @@
 import { ref, onMounted, computed, onUnmounted } from 'vue';
 
 const store = window.$chatwootStore;
-const accountId = computed(() => store?.getters?.getCurrentAccountId || 1);
+// Aggressive account ID parsing to prevent 404s if store is not populated yet
+const accountId = computed(() => {
+  if (store?.getters?.getCurrentAccountId) return store.getters.getCurrentAccountId;
+  const urlMatch = window.location.pathname.match(/\/accounts\/(\d+)\//);
+  if (urlMatch) return urlMatch[1];
+  return 1;
+});
 const conversations = ref([]);
 const loading = ref(true);
 let intervalId = null;
@@ -57,14 +63,20 @@ const openConversation = (convId) => {
 
 const fetchBotData = async () => {
   try {
-    const urls = [
-      `/api/v1/accounts/${accountId.value}/conversations?status=pending&sort_by=last_activity_at`,
-      `/api/v1/accounts/${accountId.value}/conversations?status=snoozed&sort_by=last_activity_at`
+    // We must use the exact Chatwoot endpoint structure (avoiding pure string concatenation which might be intercepted or missing trailing slashes).
+    // The safest way is to use params so Axios serializes them correctly, bypassing URL matching bugs in 404 routers.
+    const requests = [
+      window.axios.get(`/api/v1/accounts/${accountId.value}/conversations`, { params: { status: 'pending', sort_by: 'last_activity_at' } }),
+      window.axios.get(`/api/v1/accounts/${accountId.value}/conversations`, { params: { status: 'snoozed', sort_by: 'last_activity_at' } })
     ];
 
-    // We use window.axios to automatically inherit chatwoot's auth headers and token logic.
-    const results = await Promise.all(urls.map(u => window.axios.get(u).then(r => r.data).catch(() => ({ payload: [] }))));
-    const all = [].concat(...results.map(r => r.payload || []));
+    const results = await Promise.all(requests.map(req => req.then(r => r.data).catch((e) => {
+      console.warn("Bot Tab Fetch Failed:", e.message);
+      return { data: { payload: [] } };
+    })));
+
+    // Extract payload carefully considering data shapes
+    const all = [].concat(...results.map(r => r.data?.payload || r.payload || []));
 
     // Remove duplicates
     const uniqueMap = new Map();

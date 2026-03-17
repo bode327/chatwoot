@@ -125,8 +125,32 @@ const closeContactPanel = () => {
   });
 };
 
+watch(pluginSidebarWidgets, (newPlugins) => {
+  let items = [...conversationSidebarItems.value];
+  let changed = false;
+  newPlugins.forEach(plugin => {
+    const pluginKey = `plugin_${plugin.identifier}`;
+    if (!items.find(i => i.name === pluginKey)) {
+      items.push({ name: pluginKey });
+      changed = true;
+    }
+  });
+  if (changed) {
+    conversationSidebarItems.value = items;
+  }
+}, { deep: true });
+
 onMounted(() => {
-  conversationSidebarItems.value = conversationSidebarItemsOrder.value;
+  let initialItems = [...conversationSidebarItemsOrder.value];
+  const plugins = pluginSidebarWidgets.value;
+  plugins.forEach(plugin => {
+    const pluginKey = `plugin_${plugin.identifier}`;
+    if (!initialItems.find(i => i.name === pluginKey)) {
+      initialItems.push({ name: pluginKey });
+    }
+  });
+  conversationSidebarItems.value = initialItems;
+
   getContactDetails();
   store.dispatch('attributes/get', 0);
   // Load integrations to ensure linear integration state is available
@@ -301,23 +325,25 @@ onMounted(() => {
               <ContactNotes :contact-id="contactId" />
             </AccordionItem>
           </div>
+          <div
+            v-else-if="element.name.startsWith('plugin_')"
+          >
+            <!-- Render Dynamic Plugin within Draggable -->
+            <AccordionItem
+              v-if="pluginSidebarWidgets.find(w => w.identifier === element.name.replace('plugin_', ''))"
+              :title="pluginSidebarWidgets.find(w => w.identifier === element.name.replace('plugin_', '')).title"
+              :is-open="isContactSidebarItemOpen(`is_${element.name}_open`)"
+              @toggle="value => toggleSidebarUIState(`is_${element.name}_open`, value)"
+            >
+              <component
+                :is="pluginSidebarWidgets.find(w => w.identifier === element.name.replace('plugin_', '')).component"
+                :conversation-id="conversationId"
+                :contact-id="contactId"
+              />
+            </AccordionItem>
+          </div>
         </template>
       </Draggable>
-
-      <!-- Dynamic Plugins Rendering -->
-      <div v-for="widget in pluginSidebarWidgets" :key="widget.identifier" class="conversation--actions mt-3">
-        <AccordionItem
-          :title="widget.title"
-          :is-open="isContactSidebarItemOpen(`is_plugin_${widget.identifier}_open`)"
-          @toggle="value => toggleSidebarUIState(`is_plugin_${widget.identifier}_open`, value)"
-        >
-          <component
-            :is="widget.component"
-            :conversation-id="conversationId"
-            :contact-id="contactId"
-          />
-        </AccordionItem>
-      </div>
     </div>
   </div>
 </template>

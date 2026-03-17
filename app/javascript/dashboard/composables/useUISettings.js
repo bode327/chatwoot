@@ -48,6 +48,12 @@ const useConversationSidebarItemsOrder = uiSettings => {
         itemsOrderCopy.push(item);
       }
     });
+
+    // Also inject any dynamically registered plugin widgets into the list if they aren't already there.
+    // We must rely on the global store since we can't easily inject the Vuex store into this vanilla JS computed block
+    // without passing it, but `window.$chatwootStore` or the active plugins list is usually available,
+    // or we can just append a wildcard `plugins` block later. For now, we'll let the component handle plugins.
+
     return itemsOrderCopy;
   });
 };

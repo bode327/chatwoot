@@ -3,14 +3,14 @@
     <div class="bg-white rounded-lg shadow-xl w-[90vw] h-[90vh] flex flex-col overflow-hidden relative">
 
       <!-- Modal Header -->
-      <div class="flex items-center justify-between p-4 border-b border-n-weak">
+      <div class="flex items-center justify-between p-4 border-b border-n-weak shrink-0">
         <div class="flex items-center gap-3">
           <h2 class="text-lg font-semibold text-n-slate-12">Mídias do Contato</h2>
           <span class="text-sm text-n-slate-10">(Sincronizado via API ✓ | {{ mediaList.length }} arquivos)</span>
         </div>
 
         <div class="flex items-center gap-2">
-          <button @click="fetchMedia" class="button button--clear flex items-center gap-2">
+          <button @click="fetchMedia(false)" class="button button--clear flex items-center gap-2">
             <i class="i-lucide-refresh-cw"></i> Atualizar
           </button>
           <button @click="$emit('close')" class="p-2 hover:bg-n-weak rounded-md text-n-slate-11">
@@ -20,7 +20,7 @@
       </div>
 
       <!-- Filter Tabs -->
-      <div class="flex items-center gap-3 p-4 border-b border-n-weak bg-n-alpha-1">
+      <div class="flex items-center gap-3 p-4 border-b border-n-weak bg-n-alpha-1 shrink-0 overflow-x-auto">
         <button
           v-for="filter in filters"
           :key="filter.id"

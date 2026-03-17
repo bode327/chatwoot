@@ -193,7 +193,7 @@ const userPermissions = computed(() => {
 });
 
 const assigneeTabItems = computed(() => {
-  return filterItemsByPermission(
+  const defaultTabs = filterItemsByPermission(
     ASSIGNEE_TYPE_TAB_PERMISSIONS,
     userPermissions.value,
     item => item.permissions
@@ -202,6 +202,17 @@ const assigneeTabItems = computed(() => {
     name: t(`CHAT_LIST.ASSIGNEE_TYPE_TABS.${key}`),
     count: conversationStats.value[countKey] || 0,
   }));
+
+  const pluginTabs = store.getters['plugins/getConversationListTabs'] || [];
+  const customTabs = pluginTabs.map(pluginTab => ({
+    key: `plugin_${pluginTab.identifier}`,
+    name: pluginTab.title,
+    count: pluginTab.count || 0, // Fallback, could be dynamically synced or handled internally by plugin
+    isPlugin: true,
+    component: pluginTab.component
+  }));
+
+  return [...defaultTabs, ...customTabs];
 });
 
 const showAssigneeInConversationCard = computed(() => {
@@ -237,10 +248,17 @@ const conversationCustomAttributes = useFunctionGetter(
 );
 
 const activeAssigneeTabCount = computed(() => {
-  const count = assigneeTabItems.value.find(
+  const tab = assigneeTabItems.value.find(
     item => item.key === activeAssigneeTab.value
-  ).count;
-  return count;
+  );
+  return tab ? tab.count : 0;
+});
+
+const activePluginComponent = computed(() => {
+  const tab = assigneeTabItems.value.find(
+    item => item.key === activeAssigneeTab.value
+  );
+  return tab && tab.isPlugin ? tab.component : null;
 });
 
 const conversationListPagination = computed(() => {
@@ -926,63 +944,69 @@ watch(conversationFilters, (newVal, oldVal) => {
       @chat-tab-change="updateAssigneeTab"
     />
 
-    <p
-      v-if="!chatListLoading && !conversationList.length"
-      class="flex overflow-auto justify-center items-center p-4"
-    >
-      {{ $t('CHAT_LIST.LIST.404') }}
-    </p>
-    <ConversationBulkActions
-      v-if="selectedConversations.length"
-      :conversations="selectedConversations"
-      :all-conversations-selected="allConversationsSelected"
-      :selected-inboxes="uniqueInboxes"
-      :show-open-action="allSelectedConversationsStatus('open')"
-      :show-resolved-action="allSelectedConversationsStatus('resolved')"
-      :show-snoozed-action="allSelectedConversationsStatus('snoozed')"
-      @select-all-conversations="toggleSelectAll"
-      @assign-agent="onAssignAgent"
-      @update-conversations="onUpdateConversations"
-      @assign-labels="onAssignLabels"
-      @assign-team="onAssignTeamsForBulk"
+    <component
+      v-if="activePluginComponent"
+      :is="activePluginComponent"
     />
-    <div
-      ref="conversationListRef"
-      class="flex-1 min-h-0 overflow-y-auto conversations-list"
-      :class="{ '!overflow-hidden': isContextMenuOpen }"
-    >
-      <Virtualizer
-        ref="virtualListRef"
-        v-slot="{ item, index }"
-        :data="conversationList"
-      >
-        <ConversationItem
-          :source="item"
-          :label="label"
-          :team-id="teamId"
-          :folders-id="foldersId"
-          :conversation-type="conversationType"
-          :show-assignee="showAssigneeInConversationCard"
-          :data-index="index"
-          @select-conversation="selectConversation"
-          @de-select-conversation="deSelectConversation"
-        />
-      </Virtualizer>
-      <div v-if="chatListLoading" class="flex justify-center my-4">
-        <Spinner class="text-n-brand" />
-      </div>
+    <template v-else>
       <p
-        v-else-if="showEndOfListMessage"
-        class="p-4 text-center text-n-slate-11"
+        v-if="!chatListLoading && !conversationList.length"
+        class="flex overflow-auto justify-center items-center p-4"
       >
-        {{ $t('CHAT_LIST.EOF') }}
+        {{ $t('CHAT_LIST.LIST.404') }}
       </p>
-      <IntersectionObserver
-        v-else
-        :options="intersectionObserverOptions"
-        @observed="loadMoreConversations"
+      <ConversationBulkActions
+        v-if="selectedConversations.length"
+        :conversations="selectedConversations"
+        :all-conversations-selected="allConversationsSelected"
+        :selected-inboxes="uniqueInboxes"
+        :show-open-action="allSelectedConversationsStatus('open')"
+        :show-resolved-action="allSelectedConversationsStatus('resolved')"
+        :show-snoozed-action="allSelectedConversationsStatus('snoozed')"
+        @select-all-conversations="toggleSelectAll"
+        @assign-agent="onAssignAgent"
+        @update-conversations="onUpdateConversations"
+        @assign-labels="onAssignLabels"
+        @assign-team="onAssignTeamsForBulk"
       />
-    </div>
+      <div
+        ref="conversationListRef"
+        class="flex-1 min-h-0 overflow-y-auto conversations-list"
+        :class="{ '!overflow-hidden': isContextMenuOpen }"
+      >
+        <Virtualizer
+          ref="virtualListRef"
+          v-slot="{ item, index }"
+          :data="conversationList"
+        >
+          <ConversationItem
+            :source="item"
+            :label="label"
+            :team-id="teamId"
+            :folders-id="foldersId"
+            :conversation-type="conversationType"
+            :show-assignee="showAssigneeInConversationCard"
+            :data-index="index"
+            @select-conversation="selectConversation"
+            @de-select-conversation="deSelectConversation"
+          />
+        </Virtualizer>
+        <div v-if="chatListLoading" class="flex justify-center my-4">
+          <Spinner class="text-n-brand" />
+        </div>
+        <p
+          v-else-if="showEndOfListMessage"
+          class="p-4 text-center text-n-slate-11"
+        >
+          {{ $t('CHAT_LIST.EOF') }}
+        </p>
+        <IntersectionObserver
+          v-else
+          :options="intersectionObserverOptions"
+          @observed="loadMoreConversations"
+        />
+      </div>
+    </template>
     <Dialog
       ref="deleteConversationDialogRef"
       type="alert"

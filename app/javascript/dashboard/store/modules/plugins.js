@@ -1,3 +1,4 @@
+import { markRaw } from 'vue';
 import pluginsAPI from '../../api/plugins';
 
 const state = {
@@ -6,6 +7,9 @@ const state = {
     sidebarWidgets: [],
     mainTabs: [],
     conversationHeaderItems: [],
+    conversationListTabs: [],
+    messageBubbleActions: [],
+    inboxSettingsMenuItems: [],
   },
 };
 
@@ -14,6 +18,9 @@ const getters = {
   getSidebarWidgets: $state => $state.uiElements.sidebarWidgets,
   getMainTabs: $state => $state.uiElements.mainTabs,
   getConversationHeaderItems: $state => $state.uiElements.conversationHeaderItems,
+  getConversationListTabs: $state => $state.uiElements.conversationListTabs,
+  getMessageBubbleActions: $state => $state.uiElements.messageBubbleActions,
+  getInboxSettingsMenuItems: $state => $state.uiElements.inboxSettingsMenuItems,
 };
 
 const actions = {
@@ -53,6 +60,15 @@ const actions = {
   registerConversationHeaderItem({ commit }, payload) {
     commit('ADD_CONVERSATION_HEADER_ITEM', payload);
   },
+  registerConversationListTab({ commit }, payload) {
+    commit('ADD_CONVERSATION_LIST_TAB', payload);
+  },
+  registerMessageBubbleAction({ commit }, payload) {
+    commit('ADD_MESSAGE_BUBBLE_ACTION', payload);
+  },
+  registerInboxSettingsMenuItem({ commit }, payload) {
+    commit('ADD_INBOX_SETTINGS_MENU_ITEM', payload);
+  },
 };
 
 const mutations = {
@@ -62,19 +78,37 @@ const mutations = {
   ADD_SIDEBAR_WIDGET($state, widget) {
     const exists = $state.uiElements.sidebarWidgets.find(w => w.identifier === widget.identifier);
     if (!exists) {
-      $state.uiElements.sidebarWidgets.push(widget);
+      $state.uiElements.sidebarWidgets.push({ ...widget, component: markRaw(widget.component) });
     }
   },
   ADD_MAIN_TAB($state, tab) {
     const exists = $state.uiElements.mainTabs.find(t => t.identifier === tab.identifier);
     if (!exists) {
-      $state.uiElements.mainTabs.push(tab);
+      $state.uiElements.mainTabs.push({ ...tab, component: markRaw(tab.component) });
     }
   },
   ADD_CONVERSATION_HEADER_ITEM($state, item) {
     const exists = $state.uiElements.conversationHeaderItems.find(i => i.identifier === item.identifier);
     if (!exists) {
-      $state.uiElements.conversationHeaderItems.push(item);
+      $state.uiElements.conversationHeaderItems.push({ ...item, component: markRaw(item.component) });
+    }
+  },
+  ADD_CONVERSATION_LIST_TAB($state, item) {
+    const exists = $state.uiElements.conversationListTabs.find(i => i.identifier === item.identifier);
+    if (!exists) {
+      $state.uiElements.conversationListTabs.push({ ...item, component: markRaw(item.component) });
+    }
+  },
+  ADD_MESSAGE_BUBBLE_ACTION($state, item) {
+    const exists = $state.uiElements.messageBubbleActions.find(i => i.identifier === item.identifier);
+    if (!exists) {
+      $state.uiElements.messageBubbleActions.push({ ...item, component: item.component ? markRaw(item.component) : null });
+    }
+  },
+  ADD_INBOX_SETTINGS_MENU_ITEM($state, item) {
+    const exists = $state.uiElements.inboxSettingsMenuItems.find(i => i.identifier === item.identifier);
+    if (!exists) {
+      $state.uiElements.inboxSettingsMenuItems.push({ ...item, component: markRaw(item.component) });
     }
   },
 };

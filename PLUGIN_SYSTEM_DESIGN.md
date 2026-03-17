@@ -133,14 +133,26 @@ Os desenvolvedores devem criar seu frontend usando Vue 3 e empacotá-lo como um 
 
 ### A API de Registro (Global Frontend API)
 
-O Chatwoot irá injetar no objeto `window` os métodos para registrar componentes na UI:
+O Chatwoot injeta na inicialização da aplicação (`App.vue` ou `main.js`) um registro global de plugins e ferramentas acessíveis em `window.ChatwootPluginRegistry`. Da mesma forma, o objeto global `window.$chatwootStore` fornece acesso às informações de contexto em tempo real do Vuex Store do Chatwoot (como conta atual, usuário logado, contatos e mensagens da conversa atual).
 
 ```javascript
-// Exemplo do que o frontend do Chatwoot provê para o desenvolvedor:
+// Lista de todos os hooks (locais de injeção) que o Chatwoot disponibiliza aos desenvolvedores:
 window.ChatwootPluginRegistry = {
+  // Insere um painel/aba sanfonada (accordion) na barra lateral direita da conversa (Ex: Galeria de Mídia)
   registerSidebarWidget: (identifier, component, icon, title) => { ... },
+
+  // Insere um novo item de menu na barra lateral principal esquerda de navegação (Ex: Página Kanban global)
   registerMainTab: (identifier, component, icon, title) => { ... },
-  registerMessageAction: (identifier, actionCallback, icon, label) => { ... }
+
+  // Insere ícones/botões customizados no cabeçalho superior da conversa, ao lado do botão "Resolver"
+  registerConversationHeaderItem: (identifier, component, icon, title) => { ... },
+
+  // Adiciona uma nova aba aos filtros de lista de conversas, ao lado de "Minhas", "Não Atribuídas" e "Todos"
+  // (Ex: Aba "Bot" para conversas pendentes com robôs de automação). Clicar na aba substituirá a lista padrão pelo Componente Vue injetado.
+  registerConversationListTab: (identifier, component, icon, title) => { ... },
+
+  // Adiciona novas páginas de configurações específicas dentro do menu lateral das Caixas de Entrada (Inboxes)
+  registerInboxSettingsMenuItem: (identifier, component, icon, title) => { ... }
 };
 ```
 

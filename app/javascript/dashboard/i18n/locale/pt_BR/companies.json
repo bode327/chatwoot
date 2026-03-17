@@ -7,11 +7,11 @@
         "NAME": "Nome",
         "DOMAIN": "Domínio",
         "CREATED_AT": "Criado em",
-        "CONTACTS_COUNT": "Quantidade de contatos"
+        "CONTACTS_COUNT": "Contacts count"
       }
     },
     "ORDER": {
-      "LABEL": "Ordem",
+      "LABEL": "Order",
       "OPTIONS": {
         "ASCENDING": "Crescente",
         "DESCENDING": "Decrescente"

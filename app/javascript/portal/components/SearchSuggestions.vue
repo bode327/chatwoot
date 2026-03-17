@@ -66,6 +66,9 @@ export default {
   },
 
   methods: {
+    generateArticleUrl(article) {
+      return `/hc/${article.portal.slug}/articles/${article.slug}`;
+    },
     prepareContent(content) {
       return this.highlightContent(
         content,
@@ -104,7 +107,10 @@ export default {
         @mouse-enter="onHover(index)"
         @mouse-leave="onHover(-1)"
       >
-        <a class="flex flex-col gap-1 overflow-y-hidden" :href="article.link">
+        <a
+          class="flex flex-col gap-1 overflow-y-hidden"
+          :href="generateArticleUrl(article)"
+        >
           <span
             v-dompurify-html="prepareContent(article.title)"
             class="flex-auto w-full overflow-hidden text-base font-semibold leading-6 truncate text-ellipsis whitespace-nowrap"

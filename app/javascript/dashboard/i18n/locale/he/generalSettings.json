@@ -182,7 +182,6 @@
   },
   "COMMAND_BAR": {
     "SEARCH_PLACEHOLDER": "חפש או קפוץ ל",
-    "SNOOZE_PLACEHOLDER": "Type a time e.g. tomorrow, 2 hours, next friday, jan 15...",
     "SECTIONS": {
       "GENERAL": "כללי",
       "REPORTS": "דוחות",

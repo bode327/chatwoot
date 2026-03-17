@@ -3,11 +3,8 @@
     "HEADER": "الأتمتة",
     "DESCRIPTION": "ويمكن للأتمتة أن تحل محل وتبسط العمليات القائمة التي تتطلب جهداً يدوياً، مثل إضافة تسميات وتعيين المحادثات إلى أنسب وكيل. ويسمح ذلك للفريق بالتركيز على مواطن قوتهم مع تقليل الوقت الذي يقضيه في المهام الروتينية.",
     "LEARN_MORE": "تعلم المزيد عن الأتمتة",
-    "COUNT": "{n} automation | {n} automations",
-    "HEADER_BTN_TXT": "Create Automation",
+    "HEADER_BTN_TXT": "إضافة قاعدة أتمتة",
     "LOADING": "جلب قواعد الأتمتة",
-    "SEARCH_PLACEHOLDER": "Search automation rules...",
-    "NO_RESULTS": "No automation rules found matching your search",
     "ADD": {
       "TITLE": "إضافة قاعدة أتمتة",
       "SUBMIT": "إنشاء",
@@ -45,9 +42,9 @@
     "LIST": {
       "TABLE_HEADER": {
         "NAME": "الاسم",
+        "DESCRIPTION": "الوصف",
         "ACTIVE": "مفعل",
-        "CREATED_ON": "تم إنشاؤها في",
-        "ACTIONS": "الإجراءات"
+        "CREATED_ON": "تم إنشاؤها في"
       },
       "404": "لم يتم العثور على قواعد أتمتة"
     },
@@ -153,8 +150,7 @@
       "ADD_PRIVATE_NOTE": "Add a Private Note",
       "CHANGE_PRIORITY": "تغيير الأولوية",
       "ADD_SLA": "Add SLA",
-      "OPEN_CONVERSATION": "فتح المحادثة",
-      "PENDING_CONVERSATION": "تحديد المحادثة كمعلقة"
+      "OPEN_CONVERSATION": "فتح المحادثة"
     },
     "MESSAGE_TYPES": {
       "INCOMING": "Incoming Message",

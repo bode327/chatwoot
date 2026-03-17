@@ -3,11 +3,8 @@
     "HEADER": "Automatizacija",
     "DESCRIPTION": "Automation can replace and streamline existing processes that require manual effort, such as adding labels and assigning conversations to the most suitable agent. This allows the team to focus on their strengths while reducing time spent on routine tasks.",
     "LEARN_MORE": "Learn more about automation",
-    "COUNT": "{n} automation | {n} automations",
-    "HEADER_BTN_TXT": "Create Automation",
+    "HEADER_BTN_TXT": "Pridėti automatizavimo taisyklę",
     "LOADING": "Gaunamos automatizavimo taisyklės",
-    "SEARCH_PLACEHOLDER": "Search automation rules...",
-    "NO_RESULTS": "No automation rules found matching your search",
     "ADD": {
       "TITLE": "Pridėti automatizavimo taisyklę",
       "SUBMIT": "Sukurti",
@@ -45,9 +42,9 @@
     "LIST": {
       "TABLE_HEADER": {
         "NAME": "Vardas",
+        "DESCRIPTION": "Aprašymas",
         "ACTIVE": "Aktyvus",
-        "CREATED_ON": "Sukurta",
-        "ACTIONS": "Veiksmai"
+        "CREATED_ON": "Sukurta"
       },
       "404": "Nerasta jokių automatizavimo taisyklių"
     },
@@ -153,8 +150,7 @@
       "ADD_PRIVATE_NOTE": "Add a Private Note",
       "CHANGE_PRIORITY": "Pakeisti Prioritetą",
       "ADD_SLA": "Add SLA",
-      "OPEN_CONVERSATION": "Atidaryti pokalbį",
-      "PENDING_CONVERSATION": "Mark conversation as pending"
+      "OPEN_CONVERSATION": "Atidaryti pokalbį"
     },
     "MESSAGE_TYPES": {
       "INCOMING": "Incoming Message",

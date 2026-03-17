@@ -182,7 +182,6 @@
   },
   "COMMAND_BAR": {
     "SEARCH_PLACEHOLDER": "Szukaj lub przejdź do",
-    "SNOOZE_PLACEHOLDER": "Type a time e.g. tomorrow, 2 hours, next friday, jan 15...",
     "SECTIONS": {
       "GENERAL": "Ogólne",
       "REPORTS": "Raporty",

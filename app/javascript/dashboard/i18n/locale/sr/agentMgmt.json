@@ -9,7 +9,6 @@
       "ADMINISTRATOR": "Administrator",
       "AGENT": "Agent"
     },
-    "COUNT": "{n} agent | {n} agents",
     "LIST": {
       "404": "Nema agenata povezanih sa ovim nalogom",
       "TITLE": "Upravljajte agentima u Vašem timu",
@@ -97,8 +96,6 @@
         "ERROR_MESSAGE": "Nije moguće se povezati sa Woot serverom, pokušajte ponovo kasnije"
       }
     },
-    "SEARCH_PLACEHOLDER": "Traži agente...",
-    "NO_RESULTS": "No agents found matching your search",
     "SEARCH": {
       "NO_RESULTS": "Nema rezultata."
     },

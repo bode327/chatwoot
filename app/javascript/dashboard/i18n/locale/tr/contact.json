@@ -457,11 +457,8 @@
           "INSTAGRAM": {
             "PLACEHOLDER": "Instagram ekle"
           },
-          "TELEGRAM": {
-            "PLACEHOLDER": "Telegram Ekle"
-          },
           "TIKTOK": {
-            "PLACEHOLDER": "TikTok Ekle"
+            "PLACEHOLDER": "Add TikTok"
           },
           "LINKEDIN": {
             "PLACEHOLDER": "LinkedIn ekle"
@@ -576,8 +573,7 @@
       "SEARCH_EMPTY_STATE_TITLE": "Aramanızla eşleşen kişi bulunamadı 🔍",
       "LIST_EMPTY_STATE_TITLE": "No contacts available in this view 📋",
       "ACTIVE_EMPTY_STATE_TITLE": "Şu anda aktif kişi yok 🌙"
-    },
-    "LOAD_MORE": "Load more"
+    }
   },
   "CONTACTS_BULK_ACTIONS": {
     "ASSIGN_LABELS": "Assign Labels",
@@ -611,7 +607,7 @@
       "NO_INBOX_ALERT": "There are no available inboxes to start a conversation with this contact.",
       "CONTACT_SELECTOR": {
         "LABEL": "Kime:",
-        "TAG_INPUT_PLACEHOLDER": "İsim, e-posta veya telefon numarası ile arama yapmak için en az 2 karakter girin",
+        "TAG_INPUT_PLACEHOLDER": "Search for a contact with name, email or phone number",
         "CONTACT_CREATING": "Creating contact..."
       },
       "INBOX_SELECTOR": {
@@ -622,9 +618,9 @@
         "SUBJECT_LABEL": "Konu :",
         "SUBJECT_PLACEHOLDER": "Enter your email subject here",
         "CC_LABEL": "Kopya:",
-        "CC_PLACEHOLDER": "E-posta ile arama yapmak için en az 2 karakter girin",
+        "CC_PLACEHOLDER": "Search for a contact with their email address",
         "BCC_LABEL": "Gizli Kopya:",
-        "BCC_PLACEHOLDER": "E-posta ile arama yapmak için en az 2 karakter girin",
+        "BCC_PLACEHOLDER": "Search for a contact with their email address",
         "BCC_BUTTON": "Gizli Kopya"
       },
       "MESSAGE_EDITOR": {

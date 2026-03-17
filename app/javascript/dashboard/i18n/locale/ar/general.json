@@ -7,13 +7,6 @@
     },
     "CLOSE": "أغلق",
     "BETA": "تجريبي",
-    "BETA_DESCRIPTION": "This feature is in beta and may change as we improve it.",
-    "ACCEPT": "قبول",
-    "DISCARD": "Discard",
-    "PREFERRED": "المفضلة"
-  },
-  "CHOICE_TOGGLE": {
-    "YES": "نعم",
-    "NO": "لا"
+    "BETA_DESCRIPTION": "This feature is in beta and may change as we improve it."
   }
 }

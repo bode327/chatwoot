@@ -22,10 +22,6 @@
       "UPDATE_SUCCESFUL": "Stato della conversazione aggiornato correttamente.",
       "UPDATE_FAILED": "Impossibile aggiornare le conversazioni. Riprova."
     },
-    "RESOLVE": {
-      "ALL_MISSING_ATTRIBUTES": "Impossibile risolvere le conversazioni a causa di attributi richiesti mancanti",
-      "PARTIAL_SUCCESS": "Alcune conversazioni necessitano di attributi richiesti per essere risolte, perciò sono state saltate"
-    },
     "LABELS": {
       "ASSIGN_LABELS": "Assegna etichette",
       "NO_LABELS_FOUND": "Nessuna etichetta trovata",

@@ -3,11 +3,8 @@
     "HEADER": "אוטומציה",
     "DESCRIPTION": "אוטומציה יכולה להחליף ולזרז תהליכים קיימים שדורשים מאמץ ידני, כגון הוספת תוויות והקצאת שיחות לסוכן המתאים ביותר. זה מאפשר לצוות להתמקד בחוזקות שלו תוך כדי הפחתת הזמן המושקע במשימות שגרתיות.",
     "LEARN_MORE": "למד עוד על אוטומציה",
-    "COUNT": "{n} automation | {n} automations",
-    "HEADER_BTN_TXT": "Create Automation",
+    "HEADER_BTN_TXT": "הוסף כלל אוטומציה",
     "LOADING": "טוען כללי אוטומציה",
-    "SEARCH_PLACEHOLDER": "Search automation rules...",
-    "NO_RESULTS": "No automation rules found matching your search",
     "ADD": {
       "TITLE": "הוסף כלל אוטומציה",
       "SUBMIT": "צור",
@@ -45,9 +42,9 @@
     "LIST": {
       "TABLE_HEADER": {
         "NAME": "שם",
+        "DESCRIPTION": "תיאור",
         "ACTIVE": "פעיל",
-        "CREATED_ON": "נוצר ב",
-        "ACTIONS": "פעולות"
+        "CREATED_ON": "נוצר ב"
       },
       "404": "לא נמצאו כללי אוטומציה"
     },
@@ -153,8 +150,7 @@
       "ADD_PRIVATE_NOTE": "הוסף הערה פרטית",
       "CHANGE_PRIORITY": "שנה עדיפות",
       "ADD_SLA": "הוסף SLA",
-      "OPEN_CONVERSATION": "פתח שיחה",
-      "PENDING_CONVERSATION": "Mark conversation as pending"
+      "OPEN_CONVERSATION": "פתח שיחה"
     },
     "MESSAGE_TYPES": {
       "INCOMING": "הודעה נכנסת",

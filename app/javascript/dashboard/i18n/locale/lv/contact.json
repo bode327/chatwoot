@@ -457,9 +457,6 @@
           "INSTAGRAM": {
             "PLACEHOLDER": "Pievienot Instagram"
           },
-          "TELEGRAM": {
-            "PLACEHOLDER": "Add Telegram"
-          },
           "TIKTOK": {
             "PLACEHOLDER": "Add TikTok"
           },
@@ -576,8 +573,7 @@
       "SEARCH_EMPTY_STATE_TITLE": "Neviena kontaktpersona neatbilst jūsu meklēšanas vaicājumam 🔍",
       "LIST_EMPTY_STATE_TITLE": "Šajā skatā nav pieejama neviena kontaktpersona 📋",
       "ACTIVE_EMPTY_STATE_TITLE": "No contacts are active at the moment 🌙"
-    },
-    "LOAD_MORE": "Ielādēt vairāk"
+    }
   },
   "CONTACTS_BULK_ACTIONS": {
     "ASSIGN_LABELS": "Piešķirt Etiķetes",
@@ -611,7 +607,7 @@
       "NO_INBOX_ALERT": "Nav pieejamas iesūtnes, lai sāktu sarunu ar šo kontaktpersonu.",
       "CONTACT_SELECTOR": {
         "LABEL": "Kam:",
-        "TAG_INPUT_PLACEHOLDER": "Enter at least 2 characters to search by name, email, or phone number",
+        "TAG_INPUT_PLACEHOLDER": "Meklēt kontaktpersonu pēc vārda, e-pasta vai tālruņa numura",
         "CONTACT_CREATING": "Notiek kontaktpersonas izveide..."
       },
       "INBOX_SELECTOR": {
@@ -622,9 +618,9 @@
         "SUBJECT_LABEL": "Tēma :",
         "SUBJECT_PLACEHOLDER": "Ievadiet šeit sava e-pasta tēmu",
         "CC_LABEL": "Cc:",
-        "CC_PLACEHOLDER": "Enter at least 2 characters to search by email",
+        "CC_PLACEHOLDER": "Meklēt kontaktpersonu pēc e-pasta adreses",
         "BCC_LABEL": "Bcc:",
-        "BCC_PLACEHOLDER": "Enter at least 2 characters to search by email",
+        "BCC_PLACEHOLDER": "Meklēt kontaktpersonu pēc e-pasta adreses",
         "BCC_BUTTON": "Bcc"
       },
       "MESSAGE_EDITOR": {

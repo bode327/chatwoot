@@ -3,11 +3,8 @@
     "HEADER": "Automatizare",
     "DESCRIPTION": "Automation can replace and streamline existing processes that require manual effort, such as adding labels and assigning conversations to the most suitable agent. This allows the team to focus on their strengths while reducing time spent on routine tasks.",
     "LEARN_MORE": "Learn more about automation",
-    "COUNT": "{n} automation | {n} automations",
-    "HEADER_BTN_TXT": "Create Automation",
+    "HEADER_BTN_TXT": "Adaugă Regulă de Automatizare",
     "LOADING": "Preluarea regulilor de automatizare",
-    "SEARCH_PLACEHOLDER": "Search automation rules...",
-    "NO_RESULTS": "No automation rules found matching your search",
     "ADD": {
       "TITLE": "Adaugă Regulă de Automatizare",
       "SUBMIT": "Creeaza",
@@ -45,9 +42,9 @@
     "LIST": {
       "TABLE_HEADER": {
         "NAME": "Nume",
+        "DESCRIPTION": "Descriere",
         "ACTIVE": "Activ",
-        "CREATED_ON": "Creat in",
-        "ACTIONS": "Actiuni"
+        "CREATED_ON": "Creat in"
       },
       "404": "Nu s-au găsit reguli de automatizare"
     },
@@ -153,8 +150,7 @@
       "ADD_PRIVATE_NOTE": "Add a Private Note",
       "CHANGE_PRIORITY": "Modificarea priorității",
       "ADD_SLA": "Add SLA",
-      "OPEN_CONVERSATION": "Deschiderea conversației",
-      "PENDING_CONVERSATION": "Mark conversation as pending"
+      "OPEN_CONVERSATION": "Deschiderea conversației"
     },
     "MESSAGE_TYPES": {
       "INCOMING": "Incoming Message",

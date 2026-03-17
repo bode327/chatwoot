@@ -14,18 +14,19 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 
-// Since we are compiling this standalone, useStore isn't available directly from vuex
-// so we access it from the window/global scope where Chatwoot makes it available.
-const store = window.$chatwootStore;
 const totalCount = ref(0);
 
-const currentChat = computed(() => store.getters.getSelectedChat);
+// Evaluate window.$chatwootStore lazily via getter
+const currentChat = computed(() => window.$chatwootStore?.getters?.getSelectedChat);
 
 const fetchCount = async () => {
   if (!currentChat.value || !currentChat.value.meta || !currentChat.value.meta.sender) return;
   const contactId = currentChat.value.meta.sender.id;
+
+  const accountId = window.$chatwootStore?.getters?.getCurrentAccountId || 1;
+
   try {
-    const response = await window.axios.get(`/api/v1/accounts/1/plugins/gallery/index?contact_id=${contactId}`);
+    const response = await window.axios.get(`/api/v1/accounts/${accountId}/plugins/gallery/index?contact_id=${contactId}`);
     const resData = response.data.data ? response.data.data : response.data;
     const mediaItems = resData.filter(i => i.content_type && !i.content_type.includes('text'));
     totalCount.value = mediaItems.length;
@@ -35,7 +36,9 @@ const fetchCount = async () => {
 };
 
 const openGallery = () => {
-  // Try to toggle the sidebar accordion open if it isn't already
+  const store = window.$chatwootStore;
+  if (!store) return;
+
   store.dispatch('updateUISettings', {
     uiSettings: {
       ...store.getters.getUISettings,

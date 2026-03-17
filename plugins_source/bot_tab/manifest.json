@@ -1,0 +1,7 @@
+{
+  "identifier": "bot_tab",
+  "name": "Aba Bot",
+  "version": "1.0.0",
+  "author": "Equipe de Suporte",
+  "description": "Adiciona uma aba 'Bot' na lista de conversas para exibir os chamados pendentes com robôs, seguindo o padrão visual nativo do Chatwoot."
+}

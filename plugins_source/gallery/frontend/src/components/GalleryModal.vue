@@ -96,6 +96,12 @@
             </div>
           </div>
         </div>
+
+        <div v-if="hasMore && !loading" class="flex justify-center mt-6 mb-2">
+          <button @click="loadMore" class="px-6 py-2 bg-n-weak border border-n-slate-4 rounded-md text-n-slate-11 hover:bg-n-alpha-2 transition-colors">
+            Carregar mais mídias
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -114,6 +120,8 @@ export default {
       mediaList: [],
       loading: true,
       activeFilter: 'all',
+      currentPage: 1,
+      hasMore: true,
       filters: [
         { id: 'all', label: 'Todos' },
         { id: 'image', label: 'Fotos' },
@@ -145,8 +153,16 @@ export default {
     }
   },
   methods: {
-    async fetchMedia() {
-      this.loading = true;
+    async fetchMedia(isLoadMore = false) {
+      if (!isLoadMore) {
+        this.loading = true;
+        this.currentPage = 1;
+        this.mediaList = [];
+        this.hasMore = true;
+      } else {
+        this.loading = true;
+      }
+
       try {
         // URL Pathname logic fix.
         // If window.location.pathname is '/app/accounts/1/conversations/...', split('/')[3] is '1'
@@ -158,26 +174,44 @@ export default {
         // Fallback to fetch if window.axios is not available (though it always is in chatwoot)
         const axiosInstance = window.axios || window.ChatwootAxios;
         const response = await axiosInstance.get(`/api/v1/accounts/${accountId}/plugins/gallery/media`, {
-          params: { contact_id: this.contactId }
+          params: {
+            contact_id: this.contactId,
+            page: this.currentPage
+          }
         });
 
         // Chatwoot sometimes returns JSON directly, or sometimes nested in data.payload or data.data.
         // Let's handle all possibilities, considering we render `render json: results` in the backend directly.
         const responseData = response.data;
 
+        let newItems = [];
         if (Array.isArray(responseData)) {
-          this.mediaList = responseData;
+          newItems = responseData;
         } else if (responseData && responseData.data && Array.isArray(responseData.data)) {
-          this.mediaList = responseData.data;
+          newItems = responseData.data;
         } else if (responseData && responseData.payload && Array.isArray(responseData.payload)) {
-          this.mediaList = responseData.payload;
+          newItems = responseData.payload;
+        }
+
+        if (isLoadMore) {
+          this.mediaList = [...this.mediaList, ...newItems];
         } else {
-          this.mediaList = [];
+          this.mediaList = newItems;
+        }
+
+        if (newItems.length < 100) {
+          this.hasMore = false;
         }
       } catch (err) {
         console.error("Gallery Plugin: falha ao carregar mídias do contato", err);
       } finally {
         this.loading = false;
+      }
+    },
+    loadMore() {
+      if (this.hasMore && !this.loading) {
+        this.currentPage += 1;
+        this.fetchMedia(true);
       }
     },
     countFor(filterId) {

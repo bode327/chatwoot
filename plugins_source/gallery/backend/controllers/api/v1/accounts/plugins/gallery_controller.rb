@@ -7,6 +7,10 @@ module Api
           before_action :check_authorization
 
           def media
+    page = (params[:page] || 1).to_i
+    per_page = 100
+    offset = (page - 1) * per_page
+
     # Find all conversations for this contact
     conversation_ids = @contact.conversations.pluck(:id)
 
@@ -15,7 +19,8 @@ module Api
                      .joins(:message)
                      .where(messages: { conversation_id: conversation_ids })
                      .order(created_at: :desc)
-                     .limit(100)
+                     .offset(offset)
+                     .limit(per_page)
 
     # Fetch messages containing URLs
     url_regex = %r{https?://[^\s<>]+}
@@ -23,7 +28,8 @@ module Api
                             .where(conversation_id: conversation_ids)
                             .where("content ~ ?", 'https?://')
                             .order(created_at: :desc)
-                            .limit(100)
+                            .offset(offset)
+                            .limit(per_page)
 
     results = @attachments.map { |a|
       {

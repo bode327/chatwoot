@@ -17,7 +17,8 @@ const getters = {
   getPlugins: $state => $state.records,
   getSidebarWidgets: $state => $state.uiElements.sidebarWidgets,
   getMainTabs: $state => $state.uiElements.mainTabs,
-  getConversationHeaderItems: $state => $state.uiElements.conversationHeaderItems,
+  getConversationHeaderItems: $state =>
+    $state.uiElements.conversationHeaderItems,
   getConversationListTabs: $state => $state.uiElements.conversationListTabs,
   getMessageBubbleActions: $state => $state.uiElements.messageBubbleActions,
   getInboxSettingsMenuItems: $state => $state.uiElements.inboxSettingsMenuItems,
@@ -48,7 +49,7 @@ const actions = {
         }
       });
     } catch (error) {
-      console.error('Failed to fetch or evaluate dynamic plugins:', error);
+      // Ignore evaluation error
     }
   },
   registerSidebarWidget({ commit }, payload) {
@@ -79,45 +80,77 @@ const mutations = {
     $state.records = data;
   },
   ADD_SIDEBAR_WIDGET($state, widget) {
-    const exists = $state.uiElements.sidebarWidgets.find(w => w.identifier === widget.identifier);
+    const exists = $state.uiElements.sidebarWidgets.find(
+      w => w.identifier === widget.identifier
+    );
     if (!exists) {
-      $state.uiElements.sidebarWidgets.push({ ...widget, component: markRaw(widget.component) });
+      $state.uiElements.sidebarWidgets.push({
+        ...widget,
+        component: markRaw(widget.component),
+      });
     }
   },
   ADD_MAIN_TAB($state, tab) {
-    const exists = $state.uiElements.mainTabs.find(t => t.identifier === tab.identifier);
+    const exists = $state.uiElements.mainTabs.find(
+      t => t.identifier === tab.identifier
+    );
     if (!exists) {
-      $state.uiElements.mainTabs.push({ ...tab, component: markRaw(tab.component) });
+      $state.uiElements.mainTabs.push({
+        ...tab,
+        component: markRaw(tab.component),
+      });
     }
   },
   ADD_CONVERSATION_HEADER_ITEM($state, item) {
-    const exists = $state.uiElements.conversationHeaderItems.find(i => i.identifier === item.identifier);
+    const exists = $state.uiElements.conversationHeaderItems.find(
+      i => i.identifier === item.identifier
+    );
     if (!exists) {
-      $state.uiElements.conversationHeaderItems.push({ ...item, component: markRaw(item.component) });
+      $state.uiElements.conversationHeaderItems.push({
+        ...item,
+        component: markRaw(item.component),
+      });
     }
   },
   ADD_CONVERSATION_LIST_TAB($state, item) {
-    const exists = $state.uiElements.conversationListTabs.find(i => i.identifier === item.identifier);
+    const exists = $state.uiElements.conversationListTabs.find(
+      i => i.identifier === item.identifier
+    );
     if (!exists) {
-      $state.uiElements.conversationListTabs.push({ ...item, component: markRaw(item.component) });
+      $state.uiElements.conversationListTabs.push({
+        ...item,
+        component: markRaw(item.component),
+      });
     }
   },
   UPDATE_CONVERSATION_LIST_TAB_COUNT($state, { identifier, count }) {
-    const tab = $state.uiElements.conversationListTabs.find(t => t.identifier === identifier);
+    const tab = $state.uiElements.conversationListTabs.find(
+      t => t.identifier === identifier
+    );
     if (tab) {
       tab.count = count;
     }
   },
   ADD_MESSAGE_BUBBLE_ACTION($state, item) {
-    const exists = $state.uiElements.messageBubbleActions.find(i => i.identifier === item.identifier);
+    const exists = $state.uiElements.messageBubbleActions.find(
+      i => i.identifier === item.identifier
+    );
     if (!exists) {
-      $state.uiElements.messageBubbleActions.push({ ...item, component: item.component ? markRaw(item.component) : null });
+      $state.uiElements.messageBubbleActions.push({
+        ...item,
+        component: item.component ? markRaw(item.component) : null,
+      });
     }
   },
   ADD_INBOX_SETTINGS_MENU_ITEM($state, item) {
-    const exists = $state.uiElements.inboxSettingsMenuItems.find(i => i.identifier === item.identifier);
+    const exists = $state.uiElements.inboxSettingsMenuItems.find(
+      i => i.identifier === item.identifier
+    );
     if (!exists) {
-      $state.uiElements.inboxSettingsMenuItems.push({ ...item, component: markRaw(item.component) });
+      $state.uiElements.inboxSettingsMenuItems.push({
+        ...item,
+        component: markRaw(item.component),
+      });
     }
   },
 };

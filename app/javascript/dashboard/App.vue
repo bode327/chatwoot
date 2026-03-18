@@ -87,23 +87,51 @@ export default {
     // Initialize Plugins Registry
     window.ChatwootPluginRegistry = {
       registerSidebarWidget: (identifier, component, icon, title) => {
-        this.$store.dispatch('plugins/registerSidebarWidget', { identifier, component, icon, title });
+        this.$store.dispatch('plugins/registerSidebarWidget', {
+          identifier,
+          component,
+          icon,
+          title,
+        });
       },
       registerMainTab: (identifier, component, icon, title) => {
-        this.$store.dispatch('plugins/registerMainTab', { identifier, component, icon, title });
+        this.$store.dispatch('plugins/registerMainTab', {
+          identifier,
+          component,
+          icon,
+          title,
+        });
       },
       registerConversationHeaderItem: (identifier, component, icon, title) => {
-        this.$store.dispatch('plugins/registerConversationHeaderItem', { identifier, component, icon, title });
+        this.$store.dispatch('plugins/registerConversationHeaderItem', {
+          identifier,
+          component,
+          icon,
+          title,
+        });
       },
       registerConversationListTab: (identifier, component, icon, title) => {
-        this.$store.dispatch('plugins/registerConversationListTab', { identifier, component, icon, title });
+        this.$store.dispatch('plugins/registerConversationListTab', {
+          identifier,
+          component,
+          icon,
+          title,
+        });
       },
       updateConversationListTabCount: (identifier, count) => {
-        this.$store.dispatch('plugins/updateConversationListTabCount', { identifier, count });
+        this.$store.dispatch('plugins/updateConversationListTabCount', {
+          identifier,
+          count,
+        });
       },
       registerInboxSettingsMenuItem: (identifier, component, icon, title) => {
-        this.$store.dispatch('plugins/registerInboxSettingsMenuItem', { identifier, component, icon, title });
-      }
+        this.$store.dispatch('plugins/registerInboxSettingsMenuItem', {
+          identifier,
+          component,
+          icon,
+          title,
+        });
+      },
     };
   },
   unmounted() {

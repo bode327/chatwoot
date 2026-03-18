@@ -125,20 +125,24 @@ const closeContactPanel = () => {
   });
 };
 
-watch(pluginSidebarWidgets, (newPlugins) => {
-  let items = [...conversationSidebarItems.value];
-  let changed = false;
-  newPlugins.forEach(plugin => {
-    const pluginKey = `plugin_${plugin.identifier}`;
-    if (!items.find(i => i.name === pluginKey)) {
-      items.push({ name: pluginKey });
-      changed = true;
+watch(
+  pluginSidebarWidgets,
+  newPlugins => {
+    let items = [...conversationSidebarItems.value];
+    let changed = false;
+    newPlugins.forEach(plugin => {
+      const pluginKey = `plugin_${plugin.identifier}`;
+      if (!items.find(i => i.name === pluginKey)) {
+        items.push({ name: pluginKey });
+        changed = true;
+      }
+    });
+    if (changed) {
+      conversationSidebarItems.value = items;
     }
-  });
-  if (changed) {
-    conversationSidebarItems.value = items;
-  }
-}, { deep: true });
+  },
+  { deep: true }
+);
 
 onMounted(() => {
   let initialItems = [...conversationSidebarItemsOrder.value];
@@ -325,18 +329,30 @@ onMounted(() => {
               <ContactNotes :contact-id="contactId" />
             </AccordionItem>
           </div>
-          <div
-            v-else-if="element.name.startsWith('plugin_')"
-          >
+          <div v-else-if="element.name.startsWith('plugin_')">
             <!-- Render Dynamic Plugin within Draggable -->
             <AccordionItem
-              v-if="pluginSidebarWidgets.find(w => w.identifier === element.name.replace('plugin_', ''))"
-              :title="pluginSidebarWidgets.find(w => w.identifier === element.name.replace('plugin_', '')).title"
+              v-if="
+                pluginSidebarWidgets.find(
+                  w => w.identifier === element.name.replace('plugin_', '')
+                )
+              "
+              :title="
+                pluginSidebarWidgets.find(
+                  w => w.identifier === element.name.replace('plugin_', '')
+                ).title
+              "
               :is-open="isContactSidebarItemOpen(`is_${element.name}_open`)"
-              @toggle="value => toggleSidebarUIState(`is_${element.name}_open`, value)"
+              @toggle="
+                value => toggleSidebarUIState(`is_${element.name}_open`, value)
+              "
             >
               <component
-                :is="pluginSidebarWidgets.find(w => w.identifier === element.name.replace('plugin_', '')).component"
+                :is="
+                  pluginSidebarWidgets.find(
+                    w => w.identifier === element.name.replace('plugin_', '')
+                  ).component
+                "
                 :conversation-id="conversationId"
                 :contact-id="contactId"
               />

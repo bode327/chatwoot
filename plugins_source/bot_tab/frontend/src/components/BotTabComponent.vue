@@ -55,7 +55,15 @@ const formatTime = (timestamp) => {
 
 const openConversation = (convId) => {
   if (window.$chatwootRouter) {
-    window.$chatwootRouter.push(`/app/accounts/${accountId.value}/conversations/${convId}`);
+    // Chatwoot's typical vue-router uses name and params for deep linking without full reload.
+    // Ensure we trigger a router push correctly.
+    window.$chatwootRouter.push({
+      name: 'inbox_conversation',
+      params: { accountId: accountId.value, inbox_id: 0, conversation_id: convId }
+    }).catch(err => {
+      // If inbox_conversation fails (e.g., depends on parent routes), try falling back to standard string.
+      window.$chatwootRouter.push(`/app/accounts/${accountId.value}/conversations/${convId}`);
+    });
   } else {
     window.location.href = `/app/accounts/${accountId.value}/conversations/${convId}`;
   }
@@ -89,6 +97,8 @@ const fetchBotData = async () => {
     // Update the custom tab count dynamically
     if (window.ChatwootPluginRegistry && window.ChatwootPluginRegistry.updateConversationListTabCount) {
       window.ChatwootPluginRegistry.updateConversationListTabCount('bot_tab', conversations.value.length);
+    } else if (store) {
+      store.dispatch('plugins/updateConversationListTabCount', { identifier: 'bot_tab', count: conversations.value.length });
     }
   } catch (e) {
     console.error('Bot tab error:', e);

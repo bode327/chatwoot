@@ -209,7 +209,7 @@ const assigneeTabItems = computed(() => {
     name: pluginTab.title,
     count: pluginTab.count || 0, // Fallback, could be dynamically synced or handled internally by plugin
     isPlugin: true,
-    component: pluginTab.component
+    component: pluginTab.component,
   }));
 
   return [...defaultTabs, ...customTabs];
@@ -944,10 +944,7 @@ watch(conversationFilters, (newVal, oldVal) => {
       @chat-tab-change="updateAssigneeTab"
     />
 
-    <component
-      v-if="activePluginComponent"
-      :is="activePluginComponent"
-    />
+    <component :is="activePluginComponent" v-if="activePluginComponent" />
     <template v-else>
       <p
         v-if="!chatListLoading && !conversationList.length"

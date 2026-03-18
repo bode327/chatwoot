@@ -109,10 +109,19 @@ const fetchBotData = async () => {
 
 onMounted(() => {
   fetchBotData();
-  intervalId = setInterval(fetchBotData, 5000);
+
+  // Keep the interval as a fallback backup
+  intervalId = setInterval(fetchBotData, 10000);
+
+  if (window.$chatwootEmitter) {
+    window.$chatwootEmitter.on('fetch_conversation_stats', fetchBotData);
+  }
 });
 
 onUnmounted(() => {
   if (intervalId) clearInterval(intervalId);
+  if (window.$chatwootEmitter) {
+    window.$chatwootEmitter.off('fetch_conversation_stats', fetchBotData);
+  }
 });
 </script>

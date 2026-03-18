@@ -394,16 +394,12 @@ th:
     button: เปิดดูการสนทนา
   time_units:
     days:
-      one: '%{count} days'
       other: '%{count} days'
     hours:
-      one: '%{count} hours'
       other: '%{count} hours'
     minutes:
-      one: '%{count} minutes'
       other: '%{count} minutes'
     seconds:
-      one: '%{count} seconds'
       other: '%{count} seconds'
   automation:
     system_name: 'Automation System'

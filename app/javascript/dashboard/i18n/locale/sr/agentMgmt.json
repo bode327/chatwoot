@@ -79,7 +79,7 @@
         "AGENT_AVAILABILITY": {
           "LABEL": "Dostupnost",
           "PLACEHOLDER": "Подведем итог",
-          "ERROR": "Dostupnost je obavezna"
+          "ERROR": ""
         },
         "SUBMIT": "Uredi agenta"
       },

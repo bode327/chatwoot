@@ -41,9 +41,17 @@ const startBotTabPolling = () => {
     }
   };
 
-  // Initial fetch and loop
+  // Initial fetch
   fetchCount();
-  setInterval(fetchCount, 5000);
+
+  // Listen to Chatwoot's global WebSocket event emitter for real-time reactivity
+  // This triggers whenever a conversation status changes, a new message arrives, etc.
+  if (window.$chatwootEmitter) {
+    window.$chatwootEmitter.on('fetch_conversation_stats', fetchCount);
+  } else {
+    // Fallback if the emitter isn't exposed
+    setInterval(fetchCount, 5000);
+  }
 };
 
 if (window.ChatwootPluginRegistry) {

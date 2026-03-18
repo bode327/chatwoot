@@ -26,7 +26,7 @@ const fetchCount = async () => {
   const accountId = window.$chatwootStore?.getters?.getCurrentAccountId || 1;
 
   try {
-    const response = await window.axios.get(`/api/v1/accounts/${accountId}/plugins/gallery/index?contact_id=${contactId}`);
+    const response = await window.axios.get(`/api/v1/accounts/${accountId}/plugins/gallery/media?contact_id=${contactId}`);
     const resData = response.data.data ? response.data.data : response.data;
     const mediaItems = resData.filter(i => i.content_type && !i.content_type.includes('text'));
     totalCount.value = mediaItems.length;

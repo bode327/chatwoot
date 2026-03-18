@@ -174,7 +174,7 @@
           "FAILED": "Nelze přiřadit štítek. Zkuste to prosím znovu."
         },
         "TEAM_ASSIGNMENT": {
-          "SUCCESFUL": "Přiřazený tým \"{team}\" ke konverzaci id {conversationId}",
+          "SUCCESFUL": "Přiřazený tým #{team} ke konverzaci id {conversationId}",
           "FAILED": "Nelze přiřadit tým. Zkuste to prosím znovu."
         }
       }

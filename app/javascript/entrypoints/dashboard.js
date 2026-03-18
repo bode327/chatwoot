@@ -106,6 +106,8 @@ window.WootConstants = constants;
 window.$chatwootStore = store;
 window.$chatwootRouter = router;
 window.axios = createAxios(axios);
+import { emitter } from 'shared/helpers/mitt';
+window.$chatwootEmitter = emitter;
 // [VITE] Disabled this we don't need it, we can use `useEmitter` directly
 // app.prototype.$emitter = emitter;
 

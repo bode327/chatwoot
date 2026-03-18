@@ -87,14 +87,8 @@ const fetchBotData = async () => {
     conversations.value = unique.sort((a, b) => b.last_activity_at - a.last_activity_at);
 
     // Update the custom tab count dynamically
-    if (store) {
-      // Find the existing tab and update its count without replacing the component
-      const tabs = store.state.plugins.uiElements.conversationListTabs;
-      const index = tabs.findIndex(t => t.identifier === 'bot_tab');
-      if (index > -1) {
-        // Vue 3 reactivity should catch object property mutations
-        tabs[index].count = conversations.value.length;
-      }
+    if (window.ChatwootPluginRegistry && window.ChatwootPluginRegistry.updateConversationListTabCount) {
+      window.ChatwootPluginRegistry.updateConversationListTabCount('bot_tab', conversations.value.length);
     }
   } catch (e) {
     console.error('Bot tab error:', e);

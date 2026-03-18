@@ -63,6 +63,9 @@ const actions = {
   registerConversationListTab({ commit }, payload) {
     commit('ADD_CONVERSATION_LIST_TAB', payload);
   },
+  updateConversationListTabCount({ commit }, payload) {
+    commit('UPDATE_CONVERSATION_LIST_TAB_COUNT', payload);
+  },
   registerMessageBubbleAction({ commit }, payload) {
     commit('ADD_MESSAGE_BUBBLE_ACTION', payload);
   },
@@ -97,6 +100,12 @@ const mutations = {
     const exists = $state.uiElements.conversationListTabs.find(i => i.identifier === item.identifier);
     if (!exists) {
       $state.uiElements.conversationListTabs.push({ ...item, component: markRaw(item.component) });
+    }
+  },
+  UPDATE_CONVERSATION_LIST_TAB_COUNT($state, { identifier, count }) {
+    const tab = $state.uiElements.conversationListTabs.find(t => t.identifier === identifier);
+    if (tab) {
+      tab.count = count;
     }
   },
   ADD_MESSAGE_BUBBLE_ACTION($state, item) {

@@ -1,0 +1,6 @@
+{
+  "name": "Bot Tab Plugin",
+  "identifier": "bot_tab",
+  "version": "1.0.1",
+  "description": "Adiciona uma aba de Bot na listagem de conversas."
+}

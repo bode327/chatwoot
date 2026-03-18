@@ -98,6 +98,9 @@ export default {
       registerConversationListTab: (identifier, component, icon, title) => {
         this.$store.dispatch('plugins/registerConversationListTab', { identifier, component, icon, title });
       },
+      updateConversationListTabCount: (identifier, count) => {
+        this.$store.dispatch('plugins/updateConversationListTabCount', { identifier, count });
+      },
       registerInboxSettingsMenuItem: (identifier, component, icon, title) => {
         this.$store.dispatch('plugins/registerInboxSettingsMenuItem', { identifier, component, icon, title });
       }

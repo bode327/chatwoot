@@ -103,6 +103,8 @@ app.directive('on-clickaway', onClickaway);
 // load common helpers into js
 commonHelpers();
 window.WootConstants = constants;
+window.$chatwootStore = store;
+window.$chatwootRouter = router;
 window.axios = createAxios(axios);
 // [VITE] Disabled this we don't need it, we can use `useEmitter` directly
 // app.prototype.$emitter = emitter;
